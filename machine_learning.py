@@ -9,6 +9,8 @@ from sklearn.svm import SVC
 from sklearn.naive_bayes import GaussianNB
 
 from sklearn.neural_network import BernoulliRBM
+from sklearn import linear_model
+from sklearn.pipeline import Pipeline
 
 class BaseML(object):
     pass
@@ -17,11 +19,19 @@ class MLDeepLearning(BaseML):
     pass
 
 class MLNeuralNetwork(BaseML):
-    clf = BernoulliRBM(n_components=2)
+    logistic = linear_model.LogisticRegression()
+    rbm = BernoulliRBM(n_components=2)
+    classifier = Pipeline(steps=[('rbm',rbm),('logistic', logistic)])
     
-    def __init__(self):
-        pass
-
+    def __init__(self, x_train, y_train):
+        self.classifier.fit(x_train, y_train)
+        
+    def predict(self, x_test):
+        return self.classifier.predict(x_test)
+    
+    def __str__(self, *args, **kwargs):
+        return "neural network"
+        
 class MLSVM(BaseML):
     clf = SVC()
     def __init__(self, x_train, y_train):
