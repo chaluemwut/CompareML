@@ -1,6 +1,8 @@
 import numpy as np
 from sklearn.cross_validation import train_test_split
 
+is_tranfer_data = True
+
 class DataLoader(object):
     
     def __init__(self):
@@ -19,10 +21,10 @@ class DataLoader(object):
         return lst
                 
     def load_train(self):
-        return self.x_train, self.tranform_y(self.y_train)
+        return self.x_train, [self.y_train, self.tranform_y(self.y_train)][is_tranfer_data]
     
     def load_test(self):
-        return self.x_test, self.tranform_y(self.y_test)
+        return self.x_test, [self.y_test, self.tranform_y(self.y_test)][is_tranfer_data]
 
 # obj = DataLoader()
 # print obj.load_test()
