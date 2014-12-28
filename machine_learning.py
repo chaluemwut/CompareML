@@ -31,7 +31,8 @@ class MLNeuralNetwork(BaseML):
     
     def __str__(self, *args, **kwargs):
         return "neural network"
-        
+
+# ok
 class MLSVM(BaseML):
     clf = SVC()
     def __init__(self, x_train, y_train):
@@ -42,7 +43,8 @@ class MLSVM(BaseML):
     
     def __str__(self, *args, **kwargs):
         return "svm"
-    
+ 
+# ok   
 class MLDecisionTree(BaseML):
     clf = tree.DecisionTreeClassifier()
     
@@ -55,6 +57,7 @@ class MLDecisionTree(BaseML):
     def __str__(self, *args, **kwargs):
         return "decision tree"
 
+# ok
 class MLKNN(BaseML):
     clf = KNeighborsClassifier()
     
@@ -77,7 +80,8 @@ class MLCRF(BaseML):
         
     def predict(self, x_test):
         return self.clf.predict(x_test)
-    
+
+# ok    
 class MLGaussianNaiveBayes(BaseML):
     clf = GaussianNB()
     

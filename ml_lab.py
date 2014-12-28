@@ -7,7 +7,7 @@ from sklearn.decomposition import PCA
 import pylab as pl
 import pydot
 
-class LabDecsionTree(object):
+class LabBase(object):
     
     def __init__(self):
         self.load = DataLoader()
@@ -15,6 +15,70 @@ class LabDecsionTree(object):
         self.x_test, self.y_test = self.load.load_test()
         self.clf = tree.DecisionTreeClassifier()
         self.clf = self.clf.fit(self.x_train, self.y_train)
+
+class ManualNeuralNework(LabBase):
+    
+    def __init__(self):
+        self.x_train = [[0,0],
+                        [0,1],
+                        [1,0],
+                        [1,1]]
+        self.y_train = [0,
+                        0,
+                        0,
+                        1]
+        self.weight = [0, 0]
+        self.learning_rate = 0.1
+        self.threshold = 1
+    
+    def process(self):
+        
+        while True:
+            self.error_count = 0
+            for i in range(0, len(self.x_train)):
+                weight_sum = self.x_train[i][0]*self.weight[0] + self.x_train[i][1]*self.weight[1]
+                output = 0
+                if self.threshold == weight_sum :
+                    output = 1
+                
+                self.error = self.y_train[i] - output
+                
+                if self.error != 0:
+                    self.error_count += 1
+                
+                self.weight[0] += self.learning_rate*self.error*self.x_train[i][0]
+                self.weight[1] += self.learning_rate*self.error*self.x_train[i][1]
+                print 'loop i ',i,' : ',self.weight
+            
+            if self.error_count == 0:
+                print self.weight
+                break
+    
+class LabkNN(LabBase):
+    
+    def __init__(self):
+        super(LabkNN, self).__init__()
+
+    def test(self):
+        from sklearn.neighbors import NearestNeighbors
+        clf = NearestNeighbors()
+        clf.fit(self.x_train)
+#         print clf.predict(self.x_test)
+        print clf.kneighbors(self.x_test)[0]
+        print clf.kneighbors(self.x_test, return_distance=False)[0]
+#         for x in self.x_test:
+#             print clf.kneighbors(self.x_test)
+        
+class LabDecsionTree(object):
+    
+    def __init__(self):
+        super(LabkNN, self).__init__()
+#         super.__init__()
+#         self.load = DataLoader()
+#         self.x_train, self.y_train = self.load.load_train()
+#         self.x_test, self.y_test = self.load.load_test()
+#         self.clf = tree.DecisionTreeClassifier()
+#         self.clf = self.clf.fit(self.x_train, self.y_train)
             
     def create_tree(self):
 #         print clf
@@ -46,7 +110,5 @@ class LabDecsionTree(object):
         pl.plot(self.y_test)
         pl.show()
 
-
-lab = LabDecsionTree()
-lab.plot3D()
-            
+lab = ManualNeuralNework()
+lab.process()            
