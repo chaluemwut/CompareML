@@ -7,6 +7,47 @@ from sklearn.decomposition import PCA
 import pylab as pl
 import pydot
 
+import theano
+import theano.tensor as T
+import numpy as np
+
+class LabTheano(object):
+    def __init__(self):
+        pass
+    
+    def test_scalar(self):
+        x = T.scalar('x')
+        y = T.scalar('y')
+        f = theano.function([x,y], x+y)
+        print f(3,5)
+    
+    def test_vector(self):
+        x = T.vector('x')
+        y = T.vector('y')
+        f = theano.function([x, y], x*y)
+        print f(np.array([2,3,4]), np.array([0.2,0.2,0.2]))
+    
+    def test_matrix(self):
+        x = T.matrix('x')
+        y = T.matrix('y')
+        f = theano.function([x, y], x * y)
+        print f(np.array([[1, 2, 3, 4], [2, 3, 4, 5]]),
+                np.array([[0.2, 0.2, 0.2, 0.2], [0.2, 0.2, 0.2, 0.2]])
+                )
+    
+    def test_share(self):
+        x = theano.shared(np.array([[1,2],[2,4]]))
+        x_x = x+2
+        f = theano.function([], x_x)
+#         f()
+        print T.sum(x+2)
+#         print f()
+        
+class MultilayerPerceptron(object):
+    
+    def __init__(self):
+        pass
+    
 class LabBase(object):
     
     def __init__(self):
@@ -110,5 +151,6 @@ class LabDecsionTree(object):
         pl.plot(self.y_test)
         pl.show()
 
-lab = ManualNeuralNework()
-lab.process()            
+if __name__ == "__main__":
+    lab = LabTheano()
+    lab.test_share()  

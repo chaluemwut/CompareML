@@ -6,7 +6,6 @@ is_tranfer_data = True
 class DataLoader(object):
     
     def __init__(self):
-        print 'data loader'
         self.x = np.loadtxt('data/fselect.txt', delimiter=',', dtype=int)
         self.y = np.loadtxt('data/fresult.txt', dtype=int)
         self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(self.x, self.y, test_size=0.3, random_state=0)
