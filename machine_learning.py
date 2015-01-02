@@ -12,6 +12,8 @@ from sklearn.neural_network import BernoulliRBM
 from sklearn import linear_model
 from sklearn.pipeline import Pipeline
 
+from sklearn.linear_model import Perceptron
+
 class BaseML(object):
     pass
 
@@ -32,6 +34,17 @@ class MLNeuralNetwork(BaseML):
     def __str__(self, *args, **kwargs):
         return "neural network"
 
+class LinearNeuralNetwork(BaseML):
+    clf = Perceptron()
+    def __init__(self, x_train, y_train):
+        self.clf.fit_transform(x_train, y_train)
+    
+    def predict(self, x_test):
+        return self.clf.predict(x_test)
+
+    def __str__(self, *args, **kwargs):
+        return "Linear NN"
+        
 # ok
 class MLSVM(BaseML):
     clf = SVC()

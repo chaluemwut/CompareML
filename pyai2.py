@@ -47,7 +47,7 @@ class MultilayerPerceptron(object):
         return x
 
     def squared_error(self, x, y):
-        return T.sum((self.output(x) - y)**2)
+        return T.sum((self.output(x) - y) ** 2)
     
 
     
@@ -55,69 +55,106 @@ def gradient_updates_momentum(cost, params, learning_rate, momentum):
     assert momentum < 1 and momentum >= 0
     updates = []
     for param in params:
-        param_update = theano.shared(param.get_value()*0., broadcastable=param.broadcastable)
-        updates.append((param, param - learning_rate*param_update))
-        updates.append((param_update, momentum*param_update + (1. - momentum)*T.grad(cost, param)))
+        param_update = theano.shared(param.get_value() * 0., broadcastable=param.broadcastable)
+        updates.append((param, param - learning_rate * param_update))
+        updates.append((param_update, momentum * param_update + (1. - momentum) * T.grad(cost, param)))
     return updates
     
-def load_test_data():
-    np.random.seed(0)
-    N = 1000
-    y = np.random.random_integers(0, 1, N)
-    means = np.array([[-1, 1], [-1, 1]])
-    covariances = np.random.random_sample((2, 2)) + 1
-    X = np.vstack([np.random.randn(N)*covariances[0, y] + means[0, y],
-                   np.random.randn(N)*covariances[1, y] + means[1, y]])
-    return X, y
+# def load_test_data():
+#     np.random.seed(0)
+#     N = 1000
+#     y = np.random.random_integers(0, 1, N)
+#     means = np.array([[-1, 1], [-1, 1]])
+#     covariances = np.random.random_sample((2, 2)) + 1
+#     X = np.vstack([np.random.randn(N) * covariances[0, y] + means[0, y],
+#                    np.random.randn(N) * covariances[1, y] + means[1, y]])
+#     return X, y
 
-if __name__ == "__main2__":
-    x,y = load_test_data()
-    print 'x0', x[0]
-    print 'x1', x[1]
+# if __name__ == "__main2__":
+#     x,y = load_test_data()
+#     print 'x0', x[0]
+#     print 'x1', x[1]
     
 if __name__ == "__main__":
-    X, y = load_test_data()
-    layer_sizes = [X.shape[0], X.shape[0]*2, 1]
-#     print 'layer size : ', layer_sizes, ' end'
-    # Set initial parameter values
-    
-    W_init = []
+    load_data = DataLoader()
+    x_train, y_train = load_data.load_train()
+    w_init = []
     b_init = []
     activations = []
+#     print 'x train ',x_train[:1]
+#     print 'y train ',y_train[:1]
+#     w_init.append(x_train)
+
+#     w_init.append(np.array([[1, 1, 1, 1, 1, 1, 1, 1],
+#                             [2, 2, 2, 2, 2, 2, 2, 2]], dtype='float'))
+#     b_init.append(np.ones(1))
+#     activations.append(T.nnet.sigmoid)
     
+    w_init.append(np.array([.5, .5, .5, .5, .5, .5, .5, .5], dtype='float'))
+    b_init.append(np.ones(1))
+    activations.append(T.nnet.sigmoid)
+    
+    mlp = MultilayerPerceptron(w_init, b_init, activations)
+    learning_rate = 0.01
+    momentum = 0.9
+     
+    w = T.dvector()
+    x = T.dvector()
+    cost = mlp.squared_error(w, x)
+    f = theano.function([w, x], cost, updates=gradient_updates_momentum(cost, mlp.params, learning_rate, momentum))
+    for x_data, y_data in zip(x_train, y_train):
+        print 'cost : ', f(np.array(x_data, dtype='float'), [y_data])
+        print 'w : ', mlp.params[0].get_value(), ' b :', mlp.params[1].get_value()
+    
+#     X, y = load_test_data()
+#     print 'x ',len(X[0])
+#     print 'y ',len(y)
+#     layer_sizes = [X.shape[0], X.shape[0]*2, 1]
+#     print 'layer size : ', layer_sizes, ' end'
+    # Set initial parameter values
+     
+#     W_init = []
+#     b_init = []
+#     activations = []
+     
 #     for x_data, y_data in zip(x_train, y_train):
 #         W_init.append(x_data)
 #         b_init.append(np.ones(len(x_data)))
 #         activations.append(T.nnet.sigmoid)
-        
-    for n_input, n_output in zip(layer_sizes[:-1], layer_sizes[1:]):
-        print 'start : ',np.random.randn(n_output, n_input)
-        print 'b init ', np.ones(n_output)
-        W_init.append(np.random.randn(n_output, n_input))
-        b_init.append(np.ones(n_output))
-        activations.append(T.nnet.sigmoid)
+         
+#     for n_input, n_output in zip(layer_sizes[:-1], layer_sizes[1:]):
+#         print 'start : ',np.random.randn(n_output, n_input)
+#         print 'b init ', np.ones(n_output)
+#         W_init.append(np.random.randn(n_output, n_input))
+#         b_init.append(np.ones(n_output))
+#         activations.append(T.nnet.sigmoid)
+     
+#     mlp = MultilayerPerceptron(W_init, b_init, activations)    
+#     mlp_input = T.matrix('mlp_input')
+#     mlp_target = T.vector('mlp_target')
+#     learning_rate = 0.01
+#     momentum = 0.9
     
-    mlp = MultilayerPerceptron(W_init, b_init, activations)    
-    mlp_input = T.matrix('mlp_input')
-    mlp_target = T.vector('mlp_target')
-    learning_rate = 0.01
-    momentum = 0.9
-    
-    cost = mlp.squared_error(mlp_input, mlp_target)
-    train = theano.function([mlp_input, mlp_target], cost,
-                            updates=gradient_updates_momentum(cost, mlp.params, learning_rate, momentum))
-    
-    mlp_output = theano.function([mlp_input], mlp.output(mlp_input))
-    
-    iteration = 0
-
-    while iteration < 20:
-#         print len(X[0])
-        current_cost = train(X, y)
-        current_output = mlp_output(X)
-#         print ' cost ',current_cost
-        accuracy = np.mean((current_output > .5) == y)
-        print accuracy
-        iteration+=1
+#     print 'x ',X
+#     print 'y ',y
+#     cost = mlp.squared_error(mlp_input, mlp_target)
+#     train = theano.function([mlp_input, mlp_target], cost,
+#                             updates=gradient_updates_momentum(cost, mlp.params, learning_rate, momentum))
+#       
+#     mlp_output = theano.function([mlp_input], mlp.output(mlp_input))
+#   
+#     current_cost = train(X, y)
+#     current_output = mlp_output(X)
+#     print current_cost, current_output       
+#     iteration = 0
+# 
+#     while iteration < 20:
+# #         print len(X[0])
+#         current_cost = train(X, y)
+#         current_output = mlp_output(X)
+# #         print ' cost ',current_cost
+#         accuracy = np.mean((current_output > .5) == y)
+#         print accuracy
+#         iteration+=1
         
     
