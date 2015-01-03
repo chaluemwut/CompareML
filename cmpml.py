@@ -19,12 +19,12 @@ class CmpML(object):
 #               MLCRF(x_train, y_train),
               MLGaussianNaiveBayes(x_train, y_train)
               ]
-            
+        print "--------------------------------------------"
+        print "{:<17} | {}".format('Method',' Percent prediction')
+        print "--------------------------------------------"
         for a in ml:
             y_pred = a.predict(x_test)
-#             classification_report(y_test, y_pred)
-#             print a
-            print a, "\t\t", accuracy_score(y_test, y_pred)*100,'%'
+            print "{:<17}  {}%".format(a,accuracy_score(y_test, y_pred)*100)
 
         
 cmpMl = CmpML()
