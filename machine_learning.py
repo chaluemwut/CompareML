@@ -56,6 +56,18 @@ class MLSVM(BaseML):
     
     def __str__(self, *args, **kwargs):
         return "svm"
+
+class MLSVMKernel(BaseML):
+    
+    def __init__(self, x_train, y_train, kernel):
+        self.clf = SVC(kernel=kernel)
+        self.clf = self.clf.fit(x_train, y_train)
+    
+    def predict(self, x_test):
+        return self.clf.predict(x_test)
+    
+    def __str__(self, *args, **kwargs):
+        return "svm kernel"
  
 # ok   
 class MLDecisionTree(BaseML):

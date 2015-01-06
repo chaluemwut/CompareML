@@ -109,8 +109,14 @@ class LogisticRegression(object):
         # parameters of the model
         self.params = [self.W, self.b]
     
-    def get_y(self):
-        return self.y_pred
+#     def reg_predict(self, x_test):
+#         import numpy as np
+#         a = T.dvector('a')
+#         p_y = T.nnet.softmax(T.dot(a, self.W) + self.b)
+#         f = theano.function([a], p_y)
+#         p_y_pred = T.argmax(f[np.array(x_test)], axis=1)
+#         f1 = theano.function([], p_y_pred)
+#         return f1()
 
     def negative_log_likelihood(self, y):
         """Return the mean of the negative log-likelihood of the prediction
