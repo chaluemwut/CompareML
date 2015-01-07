@@ -1,6 +1,7 @@
 import numpy as np
 from sklearn.cross_validation import train_test_split
 from numpy import dtype
+from sklearn import datasets
 
 is_tranfer_data = True
 
@@ -55,15 +56,33 @@ class MultiDataLoader(object):
         self.x2, self.x3, self.y2, self.y3 = train_test_split(xi, yi, test_size=0.5, random_state=0)
 #         return template_load(x1, y1), template_load(x2, y2), template_load(x3, y3)
     def train(self):
-        return np.array(self.x1,dtype='float'), tranform_y(self.y1)
+        return np.array(self.x1, dtype='float'), tranform_y(self.y1)
     
     def test(self):
         return np.array(self.x2, dtype='float'), tranform_y(self.y2)
     
     def validation(self):
         return np.array(self.x3, dtype='float'), tranform_y(self.y3)
-                  
+ 
+class IrisLoader(object):
+    
+    def __init__(self):
+        iris = datasets.load_iris()
+        self.x = iris.data
+        self.y = iris.target
+        self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(self.x, self.y, test_size=0.2, random_state=0)
+    
+    def load_train(self):
+        return self.x_train, self.y_train
+    
+    def load_test(self):
+        return self.x_test, self.y_test
+    
 if __name__ == '__main__':
-    obj = MultiDataLoader()
-    o1,o2,o3 = obj.load()
-    print o2
+    from logistic_sgd import *
+    train, test, validate = load_data('mnist.pkl.gz')
+#     print train[0].get_value()[0]
+    print train[0].get_value()[1]
+#     obj = MultiDataLoader()
+#     o1, o2, o3 = obj.load()
+#     print o2

@@ -147,24 +147,24 @@ class DBN(object):
 def test_dbn(pretrain_lr=0.1, pretraining_epochs=1000, k=1, \
              finetune_lr=0.1, finetune_epochs=200):
 
-    x = numpy.array([[1, 1, 1, 0, 0, 0],
+    x = numpy.array([[10, 12, 1, 0, 0, 0],
                      [1, 0, 1, 0, 0, 0],
                      [1, 1, 1, 0, 0, 0],
                      [0, 0, 1, 1, 1, 0],
                      [0, 0, 1, 1, 0, 0],
                      [0, 0, 1, 1, 1, 0]])
-    y = numpy.array([[1, 0],
-                     [1, 0],
-                     [1, 0],
-                     [0, 1],
-                     [0, 1],
-                     [0, 1]])
+    y = numpy.array([[10],
+                     [20],
+                     [30],
+                     [40],
+                     [50],
+                     [60]])
 
     
     rng = numpy.random.RandomState(123)
 
     # construct DBN
-    dbn = DBN(input=x, label=y, n_ins=6, hidden_layer_sizes=[3, 3], n_outs=2, numpy_rng=rng)
+    dbn = DBN(input=x, label=y, n_ins=6, hidden_layer_sizes=[3, 3], n_outs=1, numpy_rng=rng)
 
     # pre-training (TrainUnsupervisedDBN)
     dbn.pretrain(lr=pretrain_lr, k=1, epochs=pretraining_epochs)
@@ -216,4 +216,4 @@ def test_dbn2(pretrain_lr=0.1, pretraining_epochs=1000, k=1, \
     print dbn.predict(x_test)
 
 if __name__ == "__main__":
-    test_dbn2()
+    test_dbn()
