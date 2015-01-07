@@ -188,6 +188,8 @@ def test_classification():
     X, y = digits.data, digits.target
     mlp = MLPClassifier()
     mlp.fit(X, y)
+    print 'x ', X
+    print 'y ', y
     training_score = mlp.score(X, y)
     print("training accuracy: %f" % training_score)
     assert(training_score > .95)

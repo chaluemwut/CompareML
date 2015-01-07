@@ -14,9 +14,9 @@ def test_mlp():
                     high=np.sqrt(6. / (n_in + n_out)),
                     size=(n_in, n_out)
                 ),
-                dtype=theano.config.floatX
+                dtype='float'
             )
-    b = np.zeros((n_out,), dtype=theano.config.floatX)
+    b = np.zeros((n_out,), dtype='float')
     line_out = T.dot(input, w) + b 
     out = T.tanh(line_out)
     f = theano.function([input], out)
@@ -29,7 +29,7 @@ def test_mlp():
     print 'out h ', out_h
     
     w2 = np.zeros((n_in, n_out2), dtype='float')
-    b2 = np.zeros((n_out2,), dtype='float')
+    b2 = np.array([1,1])#np.zeros((n_out2,), dtype='float')
     print 'w 2 ',w2
     print 'b 2 ',b2
     line_out2 = T.nnet.softmax(T.dot(out_h, w2) + b2)

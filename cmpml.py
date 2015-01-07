@@ -4,7 +4,7 @@ from sklearn.metrics import *
 
 from mlp5 import *
 
-# from nolearn.dbn import DBN
+from nolearn.dbn import DBN
 # 
 # class MLDBN(object):
 #     def __init__(self, x_train, y_train):
@@ -28,8 +28,18 @@ class CmpML(object):
         x_train, y_train = data_loader.load_train()
         x_test, y_test = data_loader.load_test()
         
-#         mlp = MLPClassifier()
-#         mlp.fit(x_train, y_train)
+        mlp = MLPClassifier(batch_size=1)
+        x_mlp = np.asarray([
+                 [0, 0, 1, 1, 1, 1, 1, 1],
+                 [1, 0, 1, 0, 0, 0, 0, 0],
+                 [1, 0, 0, 0, 9, 0, 0, 0],
+                 [1, 0, 0, 0, 0, 0, 0, 7],
+                 [10, 0, 0, 0, 0, 0, 0, 0]
+                 ])
+        y_mlp = np.asarray([1, 5, 6, 7, 8])
+        mlp.fit(x_mlp,
+                y_mlp)
+        print mlp.predict(np.asarray([[10, 0, 0, 0, 0, 0, 0, 0]]))
         
 #         dbn = DBN(
 #                 [x_train.shape[1], 300, 10],
@@ -38,22 +48,23 @@ class CmpML(object):
 #                 epochs = 10,
 #                 verbose = 1)
 #         dbn.fit(x_train, y_train)
-        ml = [
-#               mlp,
-              LinearNeuralNetwork(x_train, y_train),
-              MLSVM(x_train, y_train),
-              MLSVMKernel(x_train, y_train, 'rbf'),
-              MLDecisionTree(x_train, y_train),
-              MLKNN(x_train, y_train),
-#               MLCRF(x_train, y_train),
-              MLGaussianNaiveBayes(x_train, y_train)
-              ]
-        print "--------------------------------------------"
-        print "{:<17} | {}".format('Method',' Percent prediction')
-        print "--------------------------------------------"
-        for a in ml:
-            y_pred = a.predict(x_test)
-            print "{:<17}  {}%".format(a,accuracy_score(y_test, y_pred)*100)
+        
+#         ml = [
+# #               mlp,
+#               LinearNeuralNetwork(x_train, y_train),
+#               MLSVM(x_train, y_train),
+#               MLSVMKernel(x_train, y_train, 'rbf'),
+#               MLDecisionTree(x_train, y_train),
+#               MLKNN(x_train, y_train),
+# #               MLCRF(x_train, y_train),
+#               MLGaussianNaiveBayes(x_train, y_train)
+#               ]
+#         print "--------------------------------------------"
+#         print "{:<17} | {}".format('Method',' Percent prediction')
+#         print "--------------------------------------------"
+#         for a in ml:
+#             y_pred = a.predict(x_test)
+#             print "{:<17}  {}%".format(a,accuracy_score(y_test, y_pred)*100)
 
         
 # cmpMl = CmpML()

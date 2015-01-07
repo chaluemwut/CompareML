@@ -148,11 +148,13 @@ def comput_out(w1, b1, w2, b2, x):
     return f2()
     
 def test_mlp(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
-             dataset='mnist.pkl.gz', batch_size=2, n_hidden=500):
+             dataset='mnist.pkl.gz', batch_size=1, n_hidden=500):
 
     datasets = load_data2()
 
     train_set_x, train_set_y = datasets[0]
+#     print train_set_x.get_value()
+#     print train_set_y.get_value()
 #     valid_set_x, valid_set_y = datasets[1]
     test_set_x, test_set_y = datasets[2]
 
