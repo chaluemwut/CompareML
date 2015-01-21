@@ -4,17 +4,36 @@ from sklearn.metrics import *
 
 from multilayer_perceptron_classifier import *
 from pyneuro import MultiLayerPerceptron
+import numpy as np
 
 def str_rf(self):
     return 'Random Forest'
 
 def str_svm(self):
     return 'svm'
-               
-class CmpML(object):
+
+def create_letter_p2():
+    import string
+    data = np.loadtxt('data/letter.data', dtype='S32', delimiter=',')
+    lst_a_m = list(string.uppercase)[0:13]
+    for d in data:
+        if d[0] in lst_a_m:
+            d[0] = 1
+        else:
+            d[0] = -1
+    np.savetxt('data/letter.p2', data, fmt='%s', delimiter=',')
     
-    def _corss_validation(self, x_train, y_train):
-        pass
+def create_letter_p1():
+#     data = np.loadtxt('data/letter.data', dtype=('S32', int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int), delimiter=',')
+    data = np.loadtxt('data/letter.p1', dtype='S32', delimiter=',')
+#     data[data[:, 0] != 'O', 0] = 1
+#     data[data[:, 0] == 'O', 0] = -1
+#     print [i for i in data if i[0] == '-1']
+#     np.savetxt('data/letter.p1', data, fmt='%s', delimiter=',')
+#     print data
+        
+              
+class CmpML(object):
     
     def report_result(self, data_map, header):
         print "------------------------------------------------------------------"
@@ -76,9 +95,9 @@ class CmpML(object):
             print "{:<17} | {:<19} |%".format(a,accuracy_score(y_test, y_pred)*100)
 #             print "y {}".format(y_pred)
             print "----------------------------------------"
-
-                  
+               
 if __name__ == '__main__':
-    cmpMl = CmpML()
-    cmpMl.process_cmp_new()  
+    create_letter_p2()
+#     cmpMl = CmpML()
+#     cmpMl.process_cmp_new()  
 
