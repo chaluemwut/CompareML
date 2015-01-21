@@ -16,12 +16,20 @@ class CmpML(object):
     def _corss_validation(self, x_train, y_train):
         pass
     
-    def report_result(self, data_map):
+    def report_result(self, data_map, header):
         print "------------------------------------------------------------------"
-        print "{:<14} | {:<63} | {}".format("cls name","i meter","mean")
+        str = "{:<14} | ".format("cls name")
+        for h in header:
+            str += "{:<14} | ".format(h)
+        str += "mean"
+        print str
         print "------------------------------------------------------------------"
         for key, value in data_map.iteritems():
-            print "{:<14} | {} | {}".format(key, value, np.mean(value))
+            str = "{:<14} | ".format(key)
+            for data in value:
+                str += "{} | ".format(data)
+            str += "{}".format(np.mean(value))
+            print str
             print "------------------------------------------------------------------"
         
     def process_cmp_new(self):
@@ -42,7 +50,7 @@ class CmpML(object):
                                                           scoring='f1')
                 ml_result.append(scores.mean())
             result[m] = ml_result
-        self.report_result(result)
+        self.report_result(result, datasets)
     
     def process_cmp(self):
 #         print 'process'

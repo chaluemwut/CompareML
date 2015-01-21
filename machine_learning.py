@@ -1,8 +1,8 @@
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn import tree
 
-from pystruct.models import DirectionalGridCRF
-import pystruct.learners as ssvm
+# from pystruct.models import DirectionalGridCRF
+# import pystruct.learners as ssvm
 
 from sklearn.svm import SVC
 
@@ -96,16 +96,16 @@ class MLKNN(BaseML):
     def __str__(self, *args, **kwargs):
         return "k-NN"
     
-class MLCRF(BaseML):
-    clf = DirectionalGridCRF(inference_method='gpbo', neighborhood=4) 
+# class MLCRF(BaseML):
+#     clf = DirectionalGridCRF(inference_method='gpbo', neighborhood=4) 
     
-    def __init__(self, x_train, y_train):
-        self.clf = ssvm.OneSlackSSVM(model=self.clf, C=1, n_jobs=-1, inference_cache=100, tol=.1,
-                        show_loss_every=10)
-        self.clf.fit(x_train, y_train)
+#     def __init__(self, x_train, y_train):
+#         self.clf = ssvm.OneSlackSSVM(model=self.clf, C=1, n_jobs=-1, inference_cache=100, tol=.1,
+#                         show_loss_every=10)
+#         self.clf.fit(x_train, y_train)
         
-    def predict(self, x_test):
-        return self.clf.predict(x_test)
+#     def predict(self, x_test):
+#         return self.clf.predict(x_test)
 
 # ok    
 class MLGaussianNaiveBayes(BaseML):
