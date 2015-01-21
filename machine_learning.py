@@ -13,6 +13,7 @@ from sklearn import linear_model
 from sklearn.pipeline import Pipeline
 
 from sklearn.linear_model import Perceptron
+from sklearn.ensemble.forest import RandomForestClassifier
 
 class BaseML(object):
     pass
@@ -121,3 +122,19 @@ class MLGaussianNaiveBayes(BaseML):
     
 class MLGeneticAlgorithms(BaseML):
     pass
+
+class MLRandomForest(BaseML):
+    from sklearn.ensemble import RandomForestClassifier
+    clf = RandomForestClassifier()
+    
+    def __init__(self):
+        pass
+    
+    def fit(self, x_train, y_train):
+        self.clf = self.clf.fit(x_train, y_train)
+    
+    def predict(self, x_test):
+        return self.clf.predict(x_test)
+    
+    def __str__(self, *args, **kwargs):
+        return "RF"

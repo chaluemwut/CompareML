@@ -1,60 +1,57 @@
 from machine_learning import *
-from load_data import DataLoader, IrisLoader
+from load_data import DataLoader, IrisLoader, SDDataSets
 from sklearn.metrics import *
 
 from multilayer_perceptron_classifier import *
 from pyneuro import MultiLayerPerceptron
 
-from nolearn.dbn import DBN
-# 
-# class MLDBN(object):
-#     def __init__(self, x_train, y_train):
-#         self.dbn = DBN(
-#                 [x_train.shape[1], 300, 10],
-#                 learn_rates = 0.3,
-#                 learn_rate_decays = 0.9,
-#                 epochs = 10,
-#                 verbose = 1)
-#         self.dbn.fit(x_train, y_train)
-#         
-#     def predict(self, x_test):
-#         y_pred = self.db.predict(x_test)
-#         print y_pred
+def str_rf(self):
+    return 'Random Forest'
+
+def str_svm(self):
+    return 'svm'
                
 class CmpML(object):
     
-    def process(self):
+    def _corss_validation(self, x_train, y_train):
+        pass
+    
+    def report_result(self, data_map):
+        print "------------------------------------------------------------------"
+        print "{:<14} | {:<63} | {}".format("cls name","i meter","mean")
+        print "------------------------------------------------------------------"
+        for key, value in data_map.iteritems():
+            print "{:<14} | {} | {}".format(key, value, np.mean(value))
+            print "------------------------------------------------------------------"
+        
+    def process_cmp_new(self):
+        from sklearn import cross_validation
+        from sklearn import svm
+        datasets = ['adult','cov_type', 'letter']
+        RandomForestClassifier.__str__ = str_rf
+        svm.SVC.__str__ = str_svm
+        
+        ml = [RandomForestClassifier(), svm.SVC()]
+        result = {}   
+        sd = SDDataSets()
+        for m in ml:
+            ml_result = []
+            for d_name in datasets:
+                x, y = sd.load(d_name)
+                scores = cross_validation.cross_val_score(m, x, y, cv=5, 
+                                                          scoring='f1')
+                ml_result.append(scores.mean())
+            result[m] = ml_result
+        self.report_result(result)
+    
+    def process_cmp(self):
 #         print 'process'
         data_loader = IrisLoader()
-#         data_loader = DataLoader()
         x_train, y_train = data_loader.load_train()
         x_test, y_test = data_loader.load_test()
-        
-        mlp = MultiLayerPerceptron()
-#         mlp.fit(x_train, y_train)
-#         mlp = MLPClassifier(batch_size=1)
-#         x_mlp = np.asarray([
-#                  [0, 0, 1, 1, 1, 1, 1, 1],
-#                  [1, 0, 1, 0, 0, 0, 0, 0],
-#                  [1, 0, 0, 0, 9, 0, 0, 0],
-#                  [1, 0, 0, 0, 0, 0, 0, 7],
-#                  [10, 0, 0, 0, 0, 0, 0, 0]
-#                  ])
-#         y_mlp = np.asarray([1, 5, 6, 7, 8])
-#         mlp.fit(x_mlp,
-#                 y_mlp)
-#         print mlp.predict(np.asarray([[10, 0, 0, 0, 0, 0, 0, 0]]))
-        
-#         dbn = DBN(
-#                 [x_train.shape[1], 300, 10],
-#                 learn_rates = 0.3,
-#                 learn_rate_decays = 0.9,
-#                 epochs = 10,
-#                 verbose = 1)
-#         dbn.fit(x_train, y_train)
-        
+
         ml = [
-#               mlp,
+              MLRandomForest(x_train, y_train),
               LinearNeuralNetwork(x_train, y_train),
               MLSVM(x_train, y_train),
               MLSVMKernel(x_train, y_train, 'rbf'),
@@ -63,49 +60,17 @@ class CmpML(object):
 #               MLCRF(x_train, y_train),
               MLGaussianNaiveBayes(x_train, y_train)
               ]
-        print "--------------------------------------------"
-        print "{:<17} | {}".format('Method',' Percent prediction')
-        print "--------------------------------------------"
+        print "----------------------------------------"
+        print "{:<17} | {} |".format('Method',' Percent prediction')
+        print "----------------------------------------"
         for a in ml:
             y_pred = a.predict(x_test)           
-            print "{:<17}  {}%".format(a,accuracy_score(y_test, y_pred)*100)
-            print "y {}".format(y_pred)
-            print "------------"
+            print "{:<17} | {:<19} |%".format(a,accuracy_score(y_test, y_pred)*100)
+#             print "y {}".format(y_pred)
+            print "----------------------------------------"
 
-        
-# cmpMl = CmpML()
-# cmpMl.process()
-
-def test_mlp():
-        data_loader = IrisLoader()
-        x_train, y_train = data_loader.load_train()
-        x_test, y_test = data_loader.load_test()
-          
-        mlp = MLPClassifier(batch_size=1)
-        x_mlp = np.asarray(x_train)
-        y_mlp = np.asarray(y_train)
-        mlp.fit(x_mlp,
-                y_mlp)
-        print mlp.predict(x_test)
-
-def test_deep():
-        data_loader = IrisLoader()
-        x_train, y_train = data_loader.load_train()
-        x_test, y_test = data_loader.load_test()    
-        dbn = DBN(
-                [x_train.shape[1], 300, 10],
-                learn_rates = 0.3,
-                learn_rate_decays = 0.9,
-                epochs = 10,
-                verbose = 1)
-        dbn.fit(np.array(x_train), np.array(y_train)) 
-        dbn.predict(np.array(x_test))           
+                  
 if __name__ == '__main__':
-    test_deep()
-#     cmpMl = CmpML()
-#     cmpMl.process()  
-#     data_loader = DataLoader()
-#     x_train, y_train = data_loader.load_train()
-#     x_test, y_test = data_loader.load_test()    
-#     obj = MLDBN(x_train , y_train)
-#     obj.predict(x_test[0])
+    cmpMl = CmpML()
+    cmpMl.process_cmp_new()  
+
