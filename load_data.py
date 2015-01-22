@@ -282,7 +282,8 @@ class SDDataSets(object):
             self.data = np.loadtxt('data/'+self.name, dtype=int, delimiter=',')
 
         def load(self):
-            return self.data
+            lst = list(range(1,16))
+            return self.data[:,lst], self.reshape_y(self.data[:,[0]])
 
     def __init__(self):
         pass
@@ -300,20 +301,26 @@ class SDDataSets(object):
         elif 'iris' == dataset_name:
             from sklearn import datasets
             iris = datasets.load_iris()
-            return iris.data, iris.target
+            x_train, y_train = iris.data[0:100], iris.target[0:100]
+            x_test, y_test = iris.data[100:150], iris.target[100:150]
+            return x_train, y_train, x_test, y_test
         elif 'cov_type' == dataset_name:
             cov_obj = self.CovType()
             return cov_obj.load()
         elif dataset_name in ['letter.p1', 'letter.p2']:
             letter = self.LetterP(dataset_name)
-            return letter.load()
+            x, y = letter.load()
+            size = len(y)
+            x_train, y_train = x[0:5000], y[0:5000]
+            x_test, y_test = x[5000:size], y[5000:size]
+            return x_train, y_train, x_test, y_test
         elif 'letter' == dataset_name:
             letter_obj = self.Letter()
             return letter_obj.load()
     
 if __name__ == '__main__':
     sdDataSet = SDDataSets()
-    print sdDataSet.load('cov_type')
+    print sdDataSet.load('iris')
 #     loader = DataLoader()
 #     x_train, y_train = loader.load_test()
 #     print x_train

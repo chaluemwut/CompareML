@@ -45,6 +45,23 @@ def create_letter_p1():
               
 class CmpML(object):
     
+    def select_best_model(self, m, x, y):
+        from sklearn.cross_validation import KFold
+        from sklearn.metrics import accuracy_score
+        kf = KFold(len(y), n_folds=5)
+        lst_score = []
+        lst_model = []
+        for train, test in kf:
+            x_train, y_train = x[train], y[train]
+            x_test, y_test = x[test], y[test]
+            m = m.fit(x_train, y_train)
+            y_pred = m.predict(x_test)
+            score = accuracy_score(y_test, y_pred)            
+            lst_score.append(score)
+            lst_model.append(m)
+        max_index = lst_score.index(max(lst_score))
+        return lst_model[max_index]
+    
     def report_result(self, data_map, header):
         print "------------------------------------------------------------------"
         str = "{:<14} | ".format("cls name")
@@ -64,32 +81,41 @@ class CmpML(object):
     def process_cmp_new(self):
         from sklearn import cross_validation
         from sklearn import svm
+        from sklearn.metrics import *
+        
 #         datasets = ['adult', 'letter.p1', 'letter.p2']
-        datasets = ['adult','cov_type']
+        datasets = ['letter.p1','letter.p2']
         RandomForestClassifier.__str__ = str_rf
         svm.SVC.__str__ = str_svm
         BaggingClassifier.__str__ = str_bagging
         GradientBoostingClassifier.__str__ = str_boosted
         
-        ml = [RandomForestClassifier(),
-              svm.SVC(),
-              BaggingClassifier(DecisionTreeClassifier()),
-              GradientBoostingClassifier()]
+#         ml = [RandomForestClassifier(),
+#               svm.SVC(),
+#               BaggingClassifier(DecisionTreeClassifier()),
+#               GradientBoostingClassifier()]
+        ml = [GradientBoostingClassifier(),
+              RandomForestClassifier(),
+              BaggingClassifier(DecisionTreeClassifier())]        
         result = {}   
         sd = SDDataSets()
         for m in ml:
-            ml_result = []
-            for d_name in datasets:
-                if d_name in ['letter.p1', 'letter.p2']:
-                    cov = sd.CovType()
-                    x = cov.load_x()
-                    y = cov.load_y()
-                else:
-                    x, y = sd.load(d_name)
-                scores = cross_validation.cross_val_score(m, x, y, cv=5)
-                ml_result.append(scores.mean())
-            result[m] = ml_result
-        self.report_result(result, datasets)
+            print '************** ',m
+            for data_name in datasets:
+                print '++++++ data set ',data_name
+                x_train, y_train, x_test, y_true = sd.load(data_name)
+                model = self.select_best_model(m, x_train, y_train)
+                y_pred = model.predict(x_test)
+                acc = accuracy_score(y_true, y_pred)
+                fsc = f1_score(y_true, y_pred)
+                roc = roc_curve(y_true, y_pred)
+                rms = mean_squared_error(y_true, y_pred)
+                mxe = log_loss(y_true, y_pred)
+                print 'acc',acc
+                print 'fsc',fsc
+                print 'roc',roc
+                print 'rms',rms
+                print 'mxe',mxe
     
     def process_cmp(self):
 #         print 'process'
