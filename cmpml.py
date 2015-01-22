@@ -1,9 +1,12 @@
-from machine_learning import *
+# from machine_learning import *
 from load_data import DataLoader, IrisLoader, SDDataSets
 from sklearn.metrics import *
 
-from multilayer_perceptron_classifier import *
-from pyneuro import MultiLayerPerceptron
+# from multilayer_perceptron_classifier import *
+# from pyneuro import MultiLayerPerceptron
+from sklearn.ensemble import RandomForestClassifier
+from sklearn import svm
+
 import numpy as np
 
 def str_rf(self):
@@ -54,21 +57,29 @@ class CmpML(object):
     def process_cmp_new(self):
         from sklearn import cross_validation
         from sklearn import svm
-        datasets = ['adult','cov_type', 'letter']
+        datasets = ['adult', 'letter.p1', 'letter.p2']
         RandomForestClassifier.__str__ = str_rf
         svm.SVC.__str__ = str_svm
         
         ml = [RandomForestClassifier(), svm.SVC()]
         result = {}   
         sd = SDDataSets()
+        # print sd.load('cov_type')
         for m in ml:
+            print m
             ml_result = []
             for d_name in datasets:
-                x, y = sd.load(d_name)
-                scores = cross_validation.cross_val_score(m, x, y, cv=5, 
-                                                          scoring='f1')
+                print d_name
+                if d_name in ['letter.p1', 'letter.p2']:
+                    cov = sd.CovType()
+                    x = cov.load_x()
+                    y = cov.load_y()
+                else:
+                    x, y = sd.load(d_name)
+                scores = cross_validation.cross_val_score(m, x, y, cv=5)
                 ml_result.append(scores.mean())
             result[m] = ml_result
+            print 'result ', ml_result
         self.report_result(result, datasets)
     
     def process_cmp(self):
@@ -97,7 +108,7 @@ class CmpML(object):
             print "----------------------------------------"
                
 if __name__ == '__main__':
-    create_letter_p2()
-#     cmpMl = CmpML()
-#     cmpMl.process_cmp_new()  
+    # create_letter_p2()
+    cmpMl = CmpML()
+    cmpMl.process_cmp_new()  
 

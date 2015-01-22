@@ -236,11 +236,22 @@ class SDDataSets(object):
             y_train = filtered_data[:,[14]]
             return filtered_data[:,[0,1,2,3,4,5,6,7,8,9,10,11,12,13]], y_train.reshape(1, len(y_train))[0]
                     
-    class CovType(object):
+    class CovType(BaseSD):
         def __init__(self):
-            self.dataset = np.genfromtxt('data/test/covtype.data', delimiter=',', dtype=int)
-        
+            self.dataset = np.array(np.genfromtxt('data/t_covtype.data', dtype='int', delimiter=',',autostrip=True))
+
+        def load_x(self):
+            return self.dataset[:,list(range(0,54))]
+            
+        def load_y(self):
+            return self.reshape_y(self.dataset[:,54])
+
         def load(self):
+            # return self.dataset
+            return self.dataset[:,list(range(0,54))], self.reshape_y(self.dataset[:,54])
+        
+        def load_test(self):
+            self.dataset = np.genfromtxt('data/test/covtype.data', delimiter=',', dtype=int)
             train_index = list(range(0,53))
             y_train = self.dataset[:,[54]]
             return self.dataset[:, train_index], y_train.reshape(1, len(y_train))[0] 
@@ -263,7 +274,16 @@ class SDDataSets(object):
             obj = np.array(np.genfromtxt('data/t_letter.data', dtype='int', delimiter=',',autostrip=True))
             lst = list(range(1,16))
             return obj[:,lst], self.reshape_y(obj[:,[0]])
-                
+
+    class LetterP(BaseSD):
+
+        def __init__(self, letter_name):
+            self.name = letter_name
+            self.data = np.loadtxt('data/'+self.name, dtype=int, delimiter=',')
+
+        def load(self):
+            return self.data
+
     def __init__(self):
         pass
            
@@ -284,13 +304,16 @@ class SDDataSets(object):
         elif 'cov_type' == dataset_name:
             cov_obj = self.CovType()
             return cov_obj.load()
+        elif dataset_name in ['letter.p1', 'letter.p2']:
+            letter = self.LetterP(dataset_name)
+            return letter.load()
         elif 'letter' == dataset_name:
             letter_obj = self.Letter()
             return letter_obj.load()
     
 if __name__ == '__main__':
     sdDataSet = SDDataSets()
-    print sdDataSet.load('letter')
+    print sdDataSet.load('cov_type')
 #     loader = DataLoader()
 #     x_train, y_train = loader.load_test()
 #     print x_train
