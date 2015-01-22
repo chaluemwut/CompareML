@@ -109,11 +109,13 @@ class CmpML(object):
                 acc = accuracy_score(y_true, y_pred)
                 fsc = f1_score(y_true, y_pred)
                 roc = roc_curve(y_true, y_pred)
+                apr = average_precision_score(y_true, y_pred)
                 rms = mean_squared_error(y_true, y_pred)
                 mxe = log_loss(y_true, y_pred)
                 print 'acc',acc
                 print 'fsc',fsc
                 print 'roc',roc
+                print 'apr',apr
                 print 'rms',rms
                 print 'mxe',mxe
     
