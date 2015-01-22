@@ -4,7 +4,8 @@ from sklearn.metrics import *
 
 # from multilayer_perceptron_classifier import *
 # from pyneuro import MultiLayerPerceptron
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier, BaggingClassifier, GradientBoostingClassifier
 from sklearn import svm
 
 import numpy as np
@@ -14,6 +15,12 @@ def str_rf(self):
 
 def str_svm(self):
     return 'svm'
+
+def str_bagging(self):
+    return 'Bagging'
+
+def str_boosted(self):
+    return 'Boosted'
 
 def create_letter_p2():
     import string
@@ -57,19 +64,22 @@ class CmpML(object):
     def process_cmp_new(self):
         from sklearn import cross_validation
         from sklearn import svm
-        datasets = ['adult', 'letter.p1', 'letter.p2']
+#         datasets = ['adult', 'letter.p1', 'letter.p2']
+        datasets = ['adult','cov_type']
         RandomForestClassifier.__str__ = str_rf
         svm.SVC.__str__ = str_svm
+        BaggingClassifier.__str__ = str_bagging
+        GradientBoostingClassifier.__str__ = str_boosted
         
-        ml = [RandomForestClassifier(), svm.SVC()]
+        ml = [RandomForestClassifier(),
+              svm.SVC(),
+              BaggingClassifier(DecisionTreeClassifier()),
+              GradientBoostingClassifier()]
         result = {}   
         sd = SDDataSets()
-        # print sd.load('cov_type')
         for m in ml:
-            print m
             ml_result = []
             for d_name in datasets:
-                print d_name
                 if d_name in ['letter.p1', 'letter.p2']:
                     cov = sd.CovType()
                     x = cov.load_x()
@@ -79,7 +89,6 @@ class CmpML(object):
                 scores = cross_validation.cross_val_score(m, x, y, cv=5)
                 ml_result.append(scores.mean())
             result[m] = ml_result
-            print 'result ', ml_result
         self.report_result(result, datasets)
     
     def process_cmp(self):
@@ -89,14 +98,13 @@ class CmpML(object):
         x_test, y_test = data_loader.load_test()
 
         ml = [
-              MLRandomForest(x_train, y_train),
-              LinearNeuralNetwork(x_train, y_train),
-              MLSVM(x_train, y_train),
-              MLSVMKernel(x_train, y_train, 'rbf'),
-              MLDecisionTree(x_train, y_train),
-              MLKNN(x_train, y_train),
-#               MLCRF(x_train, y_train),
-              MLGaussianNaiveBayes(x_train, y_train)
+#               MLRandomForest(x_train, y_train),
+#               LinearNeuralNetwork(x_train, y_train),
+#               MLSVM(x_train, y_train),
+#               MLSVMKernel(x_train, y_train, 'rbf'),
+#               MLDecisionTree(x_train, y_train),
+#               MLKNN(x_train, y_train),
+#               MLGaussianNaiveBayes(x_train, y_train)
               ]
         print "----------------------------------------"
         print "{:<17} | {} |".format('Method',' Percent prediction')
