@@ -81,10 +81,8 @@ class CmpML(object):
     def process_cmp_new(self):
         from sklearn import cross_validation
         from sklearn import svm
-        from sklearn.metrics import *
-        
 #         datasets = ['adult', 'letter.p1', 'letter.p2']
-        datasets = ['letter.p1','letter.p2']
+        datasets = ['adult','cov_type','letter.p1','letter.p2']
         RandomForestClassifier.__str__ = str_rf
         svm.SVC.__str__ = str_svm
         BaggingClassifier.__str__ = str_bagging

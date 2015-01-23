@@ -238,7 +238,7 @@ class SDDataSets(object):
                     
     class CovType(BaseSD):
         def __init__(self):
-            self.dataset = np.array(np.genfromtxt('data/t_covtype.data', dtype='int', delimiter=',',autostrip=True))
+            self.dataset = np.array(np.genfromtxt('data/t_covtype2.data', dtype='int', delimiter=',',autostrip=True))
 
         def load_x(self):
             return self.dataset[:,list(range(0,54))]
@@ -294,10 +294,17 @@ class SDDataSets(object):
     def load_test(self):
         pass
     
+    def split_data(self, x, y, size=0):
+        size = [size+5001, len(y)][size==0]
+        x_train, y_train = x[0:5000], y[0:5000]
+        x_test, y_test = x[5000:size], y[5000:size]
+        return x_train, y_train, x_test, y_test
+
     def load(self, dataset_name):
         if 'adult' == dataset_name:
             adult = self.ADULT()
-            return adult.load()
+            x, y = adult.load()
+            return self.split_data(x, y)
         elif 'iris' == dataset_name:
             from sklearn import datasets
             iris = datasets.load_iris()
@@ -306,14 +313,12 @@ class SDDataSets(object):
             return x_train, y_train, x_test, y_test
         elif 'cov_type' == dataset_name:
             cov_obj = self.CovType()
-            return cov_obj.load()
+            x,y = cov_obj.load()
+            return self.split_data(x, y)
         elif dataset_name in ['letter.p1', 'letter.p2']:
             letter = self.LetterP(dataset_name)
             x, y = letter.load()
-            size = len(y)
-            x_train, y_train = x[0:5000], y[0:5000]
-            x_test, y_test = x[5000:size], y[5000:size]
-            return x_train, y_train, x_test, y_test
+            return self.split_data(x, y)
         elif 'letter' == dataset_name:
             letter_obj = self.Letter()
             return letter_obj.load()
