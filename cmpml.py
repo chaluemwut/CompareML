@@ -62,9 +62,55 @@ class CmpML(object):
         max_index = lst_score.index(max(lst_score))
         return lst_model[max_index]
     
+    def report_by_metrics(self, data_map, header):
+        print "---------------  Report by metrics  -----------------------------"
+        str = "{:<14} | ".format("model")
+        for h in header:
+            str+="{:<14} | ".format(h)
+        str+="mean"
+        print str
+        print "------------------------------------------------------------------"
+        for key, value in data_map.iteritems():
+            str = "{:<14} | ".format(key)
+            lst_value = []
+            n = np.array(value)
+            lst_value.append(np.average(n[:,0]))
+            lst_value.append(np.average(n[:,1]))
+            lst_value.append(np.average(n[:,2]))
+            lst_value.append(np.average(n[:,3]))
+            lst_value.append(np.average(n[:,4]))
+            lst_value.append(np.average(n[:,5]))
+            str += "{:<14} | {:<14} | {:<14} | {:<14} | {:<14} | {:<14} | {:<14}".format(lst_value[0],
+                                                           lst_value[1],
+                                                           lst_value[2],
+                                                           lst_value[3],
+                                                           lst_value[4],
+                                                           lst_value[5],
+                                                           np.average(lst_value))
+            print str
+    
+    def report_by_datasets(self, data_map, header):
+        print "------------------- Report by name ------------------------------"
+        str = "{:<14} | ".format("model")
+        for h in header:
+            str+="{:<14} | ".format(h)
+        str+="mean"
+        print str
+        print "------------------------------------------------------------------"
+        for key, value in data_map.iteritems():
+            str = "{:<14} | ".format(key)
+            str += "{:<14} | {:<14} | {:<14} | {:<14} | {:<14}".format(np.mean(value[0]),
+                                                           np.mean(value[1]),
+                                                           np.mean(value[2]),
+                                                           np.mean(value[3]),
+                                                           np.mean(value))
+            print str
+
+
+    
     def report_result(self, data_map, header):
         print "------------------------------------------------------------------"
-        str = "{:<14} | ".format("cls name")
+        str = "{:<14} | ".format("model")
         for h in header:
             str += "{:<14} | ".format(h)
         str += "mean"
@@ -87,35 +133,36 @@ class CmpML(object):
         svm.SVC.__str__ = str_svm
         BaggingClassifier.__str__ = str_bagging
         GradientBoostingClassifier.__str__ = str_boosted
-        
-#         ml = [RandomForestClassifier(),
-#               svm.SVC(),
-#               BaggingClassifier(DecisionTreeClassifier()),
-#               GradientBoostingClassifier()]
+
         ml = [GradientBoostingClassifier(),
               RandomForestClassifier(),
               BaggingClassifier(DecisionTreeClassifier())]        
         result = {}   
         sd = SDDataSets()
         for m in ml:
-            print '************** ',m
+#             print '************** ',m
+            m_lst = []
             for data_name in datasets:
-                print '++++++ data set ',data_name
+#                 print '++++++ data set ',data_name
+                lst = []
                 x_train, y_train, x_test, y_true = sd.load(data_name)
                 model = self.select_best_model(m, x_train, y_train)
                 y_pred = model.predict(x_test)
+                
                 acc = accuracy_score(y_true, y_pred)
                 fsc = f1_score(y_true, y_pred)
-                roc = roc_curve(y_true, y_pred)
+                fpr, tpr, thresholds = roc_curve(y_true, y_pred)
+                roc_auc = auc(fpr, tpr)
+#                 print roc_auc
                 apr = average_precision_score(y_true, y_pred)
                 rms = mean_squared_error(y_true, y_pred)
-                mxe = log_loss(y_true, y_pred)
-                print 'acc',acc
-                print 'fsc',fsc
-                print 'roc',roc
-                print 'apr',apr
-                print 'rms',rms
-                print 'mxe',mxe
+                mxe = log_loss(y_true, y_pred, normalize=True)
+                lst.extend([acc, fsc, roc_auc, apr, rms, mxe])
+                m_lst.append(lst)
+            result[m] = m_lst
+        self.report_by_metrics(result,['acc', 'fsc', 'roc', 'apr', 'rms', 'mxe'])
+        print ''
+        self.report_by_datasets(result, datasets)
     
     def process_cmp(self):
 #         print 'process'
