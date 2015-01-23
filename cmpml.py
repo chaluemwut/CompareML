@@ -79,13 +79,13 @@ class CmpML(object):
             lst_value.append(np.average(n[:,2]))
             lst_value.append(np.average(n[:,3]))
             lst_value.append(np.average(n[:,4]))
-            lst_value.append(np.average(n[:,5]))
-            str += "{:<14} | {:<14} | {:<14} | {:<14} | {:<14} | {:<14} | {:<14}".format(lst_value[0],
+            # lst_value.append(np.average(n[:,5]))
+            str += "{:<14} | {:<14} | {:<14} | {:<14} | {:<14} | {:<14}".format(lst_value[0],
                                                            lst_value[1],
                                                            lst_value[2],
                                                            lst_value[3],
                                                            lst_value[4],
-                                                           lst_value[5],
+                                                           # lst_value[5],
                                                            np.average(lst_value))
             print str
     
@@ -135,8 +135,8 @@ class CmpML(object):
         GradientBoostingClassifier.__str__ = str_boosted
 
         ml = [GradientBoostingClassifier(),
-              RandomForestClassifier(),
-              BaggingClassifier(DecisionTreeClassifier())]        
+              RandomForestClassifier(n_estimators=1024),
+              BaggingClassifier(DecisionTreeClassifier())]
         result = {}   
         sd = SDDataSets()
         for m in ml:
@@ -156,11 +156,11 @@ class CmpML(object):
 #                 print roc_auc
                 apr = average_precision_score(y_true, y_pred)
                 rms = mean_squared_error(y_true, y_pred)
-                mxe = log_loss(y_true, y_pred, normalize=True)
-                lst.extend([acc, fsc, roc_auc, apr, rms, mxe])
+                # mxe = log_loss(y_true, y_pred, normalize=True)
+                lst.extend([acc, fsc, roc_auc, apr, rms])
                 m_lst.append(lst)
             result[m] = m_lst
-        self.report_by_metrics(result,['acc', 'fsc', 'roc', 'apr', 'rms', 'mxe'])
+        self.report_by_metrics(result,['acc', 'fsc', 'roc', 'apr', 'rms'])
         print ''
         self.report_by_datasets(result, datasets)
     
