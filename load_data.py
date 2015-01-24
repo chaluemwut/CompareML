@@ -233,6 +233,7 @@ class SDDataSets(object):
 
         def load(self):
             filtered_data=np.array(np.genfromtxt('data/t_adult.data', dtype='int', delimiter=',',autostrip=True))
+            filtered_data[filtered_data[:,14]!=1, 14] = 0
             y_train = filtered_data[:,[14]]
             return filtered_data[:,[0,1,2,3,4,5,6,7,8,9,10,11,12,13]], y_train.reshape(1, len(y_train))[0]
                     
@@ -253,6 +254,7 @@ class SDDataSets(object):
         def load_test(self):
             self.dataset = np.genfromtxt('data/test/covtype.data', delimiter=',', dtype=int)
             train_index = list(range(0,53))
+            self.dataset[self.dataset[:,54]==-1, 54] = 0
             y_train = self.dataset[:,[54]]
             return self.dataset[:, train_index], y_train.reshape(1, len(y_train))[0] 
     
@@ -283,17 +285,28 @@ class SDDataSets(object):
 
         def load(self):
             lst = list(range(1,16))
+            self.data[self.data[:,0]==-1,0]=0
             return self.data[:,lst], self.reshape_y(self.data[:,[0]])
 
-    def __init__(self):
-        pass
-           
-    def load_train(self):
-        pass
-    
-    def load_test(self):
-        pass
-    
+    class FBCredibility(BaseSD):
+
+        def __init__(self):
+            self.x = np.loadtxt('data/fbcredibility/training.data', dtype=int, delimiter=',')
+            self.y = np.loadtxt('data/fbcredibility/result.data', dtype=int, delimiter=',')
+
+        def load(self):
+            return self.x, self.y
+
+    # def __init__(self):
+    #     pass
+    #
+    # def load_train(self):
+    #     pass
+    #
+    # def load_test(self):
+    #     pass
+    #
+
     def split_data(self, x, y, size=0):
         size = [size+5001, len(y)][size==0]
         x_train, y_train = x[0:5000], y[0:5000]
@@ -322,10 +335,16 @@ class SDDataSets(object):
         elif 'letter' == dataset_name:
             letter_obj = self.Letter()
             return letter_obj.load()
+        elif 'fbcredibility' == dataset_name:
+            fb_load = self.FBCredibility()
+            x, y = fb_load.load()
+            size = len(y)
+            return x[0:600], y[0:600], x[600:size], y[600:size]
+
     
 if __name__ == '__main__':
     sdDataSet = SDDataSets()
-    print sdDataSet.load('iris')
+    print sdDataSet.load('letter.p1')[1][11]
 #     loader = DataLoader()
 #     x_train, y_train = loader.load_test()
 #     print x_train

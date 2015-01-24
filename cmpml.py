@@ -7,8 +7,10 @@ from sklearn.metrics import *
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, BaggingClassifier, GradientBoostingClassifier
 from sklearn import svm
-
+import logging
 import numpy as np
+
+logging.basicConfig(level=logging.INFO)
 
 def str_rf(self):
     return 'Random Forest'
@@ -48,17 +50,20 @@ class CmpML(object):
     def select_best_model(self, m, x, y):
         from sklearn.cross_validation import KFold
         from sklearn.metrics import accuracy_score
+        import copy
         kf = KFold(len(y), n_folds=5)
         lst_score = []
         lst_model = []
         for train, test in kf:
+            m_i = copy.deepcopy(m)
             x_train, y_train = x[train], y[train]
             x_test, y_test = x[test], y[test]
-            m = m.fit(x_train, y_train)
-            y_pred = m.predict(x_test)
+            m_i = m_i.fit(x_train, y_train)
+            y_pred = m_i.predict(x_test)
             score = accuracy_score(y_test, y_pred)            
             lst_score.append(score)
-            lst_model.append(m)
+            lst_model.append(m_i)
+        logging.debug(lst_score)
         max_index = lst_score.index(max(lst_score))
         return lst_model[max_index]
     
@@ -99,10 +104,11 @@ class CmpML(object):
         print "------------------------------------------------------------------"
         for key, value in data_map.iteritems():
             str = "{:<14} | ".format(key)
-            str += "{:<14} | {:<14} | {:<14} | {:<14} | {:<14}".format(np.mean(value[0]),
+            str += "{:<14} | {:<14} | {:<14} | {:<14} | {:<14} | {:<14}".format(np.mean(value[0]),
                                                            np.mean(value[1]),
                                                            np.mean(value[2]),
                                                            np.mean(value[3]),
+                                                           np.mean(value[4]),
                                                            np.mean(value))
             print str
 
@@ -125,10 +131,8 @@ class CmpML(object):
             print "------------------------------------------------------------------"
         
     def process_cmp_new(self):
-        from sklearn import cross_validation
         from sklearn import svm
-#         datasets = ['adult', 'letter.p1', 'letter.p2']
-        datasets = ['adult','cov_type','letter.p1','letter.p2']
+        datasets = ['adult','cov_type','letter.p1','letter.p2', 'fbcredibility']
         RandomForestClassifier.__str__ = str_rf
         svm.SVC.__str__ = str_svm
         BaggingClassifier.__str__ = str_bagging
@@ -136,7 +140,9 @@ class CmpML(object):
 
         ml = [GradientBoostingClassifier(),
               RandomForestClassifier(n_estimators=1024),
-              BaggingClassifier(DecisionTreeClassifier())]
+              BaggingClassifier(DecisionTreeClassifier()),
+              svm.SVC()]
+
         result = {}   
         sd = SDDataSets()
         for m in ml:
@@ -151,8 +157,9 @@ class CmpML(object):
                 
                 acc = accuracy_score(y_true, y_pred)
                 fsc = f1_score(y_true, y_pred)
-                fpr, tpr, thresholds = roc_curve(y_true, y_pred)
-                roc_auc = auc(fpr, tpr)
+                roc_auc = roc_auc_score(y_true, y_pred)
+                # fpr, tpr, thresholds = roc_curve(y_true, y_pred)
+                # roc_auc = auc(fpr, tpr)
 #                 print roc_auc
                 apr = average_precision_score(y_true, y_pred)
                 rms = mean_squared_error(y_true, y_pred)
@@ -189,7 +196,8 @@ class CmpML(object):
             print "----------------------------------------"
                
 if __name__ == '__main__':
-    # create_letter_p2()
+    logging.info('start...')
     cmpMl = CmpML()
-    cmpMl.process_cmp_new()  
+    cmpMl.process_cmp_new()
+    logging.info('end...')
 
