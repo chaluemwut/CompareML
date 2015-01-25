@@ -2,8 +2,12 @@ import numpy as np
 from sklearn.cross_validation import train_test_split
 from numpy import dtype
 from sklearn import datasets
+import random
+import logging
 
 is_tranfer_data = True
+
+logging.basicConfig(level=logging.INFO)
 
 class DataLoader(object):
     
@@ -233,6 +237,7 @@ class SDDataSets(object):
 
         def load(self):
             filtered_data=np.array(np.genfromtxt('data/t_adult.data', dtype='int', delimiter=',',autostrip=True))
+            random.shuffle(filtered_data)
             filtered_data[filtered_data[:,14]!=1, 14] = 0
             y_train = filtered_data[:,[14]]
             return filtered_data[:,[0,1,2,3,4,5,6,7,8,9,10,11,12,13]], y_train.reshape(1, len(y_train))[0]
@@ -240,6 +245,9 @@ class SDDataSets(object):
     class CovType(BaseSD):
         def __init__(self):
             self.dataset = np.array(np.genfromtxt('data/t_covtype2.data', dtype='int', delimiter=',',autostrip=True))
+            logging.debug(self.dataset)
+            random.shuffle(self.dataset)
+            logging.debug(self.dataset)
 
         def load_x(self):
             return self.dataset[:,list(range(0,54))]
@@ -282,6 +290,7 @@ class SDDataSets(object):
         def __init__(self, letter_name):
             self.name = letter_name
             self.data = np.loadtxt('data/'+self.name, dtype=int, delimiter=',')
+            random.shuffle(self.data)
 
         def load(self):
             lst = list(range(1,16))

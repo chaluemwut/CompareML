@@ -216,4 +216,4 @@ def test_dbn2(pretrain_lr=0.1, pretraining_epochs=1000, k=1, \
     print dbn.predict(x_test)
 
 if __name__ == "__main__":
-    test_dbn()
+    test_dbn2()

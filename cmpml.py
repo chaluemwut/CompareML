@@ -5,6 +5,7 @@ from sklearn.metrics import *
 # from multilayer_perceptron_classifier import *
 # from pyneuro import MultiLayerPerceptron
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble import RandomForestClassifier, BaggingClassifier, GradientBoostingClassifier
 from sklearn import svm
 import logging
@@ -23,6 +24,9 @@ def str_bagging(self):
 
 def str_boosted(self):
     return 'Boosted'
+
+def str_nb(self):
+    return 'Naive Bayes'
 
 def create_letter_p2():
     import string
@@ -67,7 +71,7 @@ class CmpML(object):
         max_index = lst_score.index(max(lst_score))
         return lst_model[max_index]
     
-    def report_by_metrics(self, data_map, header):
+    def report_by_metrics(self, data_map, header, ml):
         print "---------------  Report by metrics  -----------------------------"
         str = "{:<14} | ".format("model")
         for h in header:
@@ -75,7 +79,8 @@ class CmpML(object):
         str+="mean"
         print str
         print "------------------------------------------------------------------"
-        for key, value in data_map.iteritems():
+        for key in ml:
+            value = data_map[key]
             str = "{:<14} | ".format(key)
             lst_value = []
             n = np.array(value)
@@ -94,7 +99,7 @@ class CmpML(object):
                                                            np.average(lst_value))
             print str
     
-    def report_by_datasets(self, data_map, header):
+    def report_by_datasets(self, data_map, header, ml):
         print "------------------- Report by name ------------------------------"
         str = "{:<14} | ".format("model")
         for h in header:
@@ -102,7 +107,8 @@ class CmpML(object):
         str+="mean"
         print str
         print "------------------------------------------------------------------"
-        for key, value in data_map.iteritems():
+        for key in ml:
+            value = data_map[key]
             str = "{:<14} | ".format(key)
             str += "{:<14} | {:<14} | {:<14} | {:<14} | {:<14} | {:<14}".format(np.mean(value[0]),
                                                            np.mean(value[1]),
@@ -114,7 +120,7 @@ class CmpML(object):
 
 
     
-    def report_result(self, data_map, header):
+    def report_result(self, data_map, header, ml):
         print "------------------------------------------------------------------"
         str = "{:<14} | ".format("model")
         for h in header:
@@ -122,7 +128,8 @@ class CmpML(object):
         str += "mean"
         print str
         print "------------------------------------------------------------------"
-        for key, value in data_map.iteritems():
+        for key in ml:
+            value = data_map[key]
             str = "{:<14} | ".format(key)
             for data in value:
                 str += "{} | ".format(data)
@@ -131,22 +138,25 @@ class CmpML(object):
             print "------------------------------------------------------------------"
         
     def process_cmp_new(self):
-        from sklearn import svm
         datasets = ['adult','cov_type','letter.p1','letter.p2', 'fbcredibility']
         RandomForestClassifier.__str__ = str_rf
         svm.SVC.__str__ = str_svm
         BaggingClassifier.__str__ = str_bagging
         GradientBoostingClassifier.__str__ = str_boosted
+        GaussianNB.__str__ = str_nb
 
-        ml = [GradientBoostingClassifier(),
+        ml = [GradientBoostingClassifier(n_estimators=1024),
               RandomForestClassifier(n_estimators=1024),
-              BaggingClassifier(DecisionTreeClassifier()),
-              svm.SVC()]
+              BaggingClassifier(DecisionTreeClassifier(), n_estimators=100),
+              GaussianNB()]
+        # ml = [GradientBoostingClassifier(),
+        #       RandomForestClassifier(),
+        #       BaggingClassifier(DecisionTreeClassifier()),
+        #       GaussianNB()]
 
         result = {}   
         sd = SDDataSets()
         for m in ml:
-#             print '************** ',m
             m_lst = []
             for data_name in datasets:
 #                 print '++++++ data set ',data_name
@@ -159,17 +169,17 @@ class CmpML(object):
                 fsc = f1_score(y_true, y_pred)
                 roc_auc = roc_auc_score(y_true, y_pred)
                 # fpr, tpr, thresholds = roc_curve(y_true, y_pred)
-                # roc_auc = auc(fpr, tpr)
+                # roc_auc2 = auc(fpr, tpr)
 #                 print roc_auc
                 apr = average_precision_score(y_true, y_pred)
-                rms = mean_squared_error(y_true, y_pred)
+                rms = 1-mean_squared_error(y_true, y_pred)
                 # mxe = log_loss(y_true, y_pred, normalize=True)
                 lst.extend([acc, fsc, roc_auc, apr, rms])
                 m_lst.append(lst)
             result[m] = m_lst
-        self.report_by_metrics(result,['acc', 'fsc', 'roc', 'apr', 'rms'])
+        self.report_by_metrics(result,['acc', 'fsc', 'roc', 'apr', 'rms'], ml)
         print ''
-        self.report_by_datasets(result, datasets)
+        self.report_by_datasets(result, datasets, ml)
     
     def process_cmp(self):
 #         print 'process'
