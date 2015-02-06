@@ -11,6 +11,7 @@ from sklearn import svm
 import logging
 import numpy as np
 import pickle
+import time
 
 logging.basicConfig(level=logging.INFO)
 
@@ -111,7 +112,7 @@ class CmpML(object):
             lst_value.append(np.average(n[:,3]))
             lst_value.append(np.average(n[:,4]))
             # lst_value.append(np.average(n[:,5]))
-            str += "{:<14} | {:<14} | {:<14} | {:<14} | {:<14} | {:<14}".format(lst_value[0],
+            str += "{:<14.3f} | {:<14.3f} | {:<14.3f} | {:<14.3f} | {:<14.3f} | {:<14.3f}".format(lst_value[0],
                                                            lst_value[1],
                                                            lst_value[2],
                                                            lst_value[3],
@@ -131,7 +132,7 @@ class CmpML(object):
         for key in ml:
             value = data_map[key]
             str = "{:<14} | ".format(key)
-            str += "{:<14} | {:<14} | {:<14} | {:<14} | {:<14}".format(np.mean(value[0]),
+            str += "{:<14.3f} | {:<14.3f} | {:<14.3f} | {:<14.3f} | {:<14.3f}".format(np.mean(value[0]),
                                                            np.mean(value[1]),
                                                            np.mean(value[2]),
                                                            np.mean(value[3]),
@@ -199,6 +200,7 @@ class CmpML(object):
 
     def init_setup(self):
         self.datasets = ['adult', 'cov_type', 'letter.p1', 'letter.p2']
+        self.ml_name = ['Boosted', 'RandomForest', 'Bagging', 'NaiveBayes']
         RandomForestClassifier.__str__ = str_rf
         svm.SVC.__str__ = str_svm
         BaggingClassifier.__str__ = str_bagging
@@ -214,8 +216,20 @@ class CmpML(object):
         #       GaussianNB()]
         # return self.datasets, ml
 
+    def process_n_estimation(self):
+        self.init_setup()
+        for m_name in self.ml_name:
+            for d_name in self.datasets:
+                file_name = "model/{}_{}".format(m_name, d_name)
+                if m_name != 'NaiveBayes':
+                    model = pickle.load(open(file_name, 'rb'))
+                    print "{} {} {}".format(m_name, d_name, model.n_estimators)
+
+                # print file_name
+
     def process_save_model(self):
-        ml_name = ['Boosted', 'RandomForest', 'Bagging', 'NaiveBayes']
+        # ml_name = ['Boosted', 'RandomForest', 'Bagging', 'NaiveBayes']
+        ml_name = ['Bagging', 'RandomForest', 'Boosted', 'NaiveBayes']
         datasets = ['adult', 'cov_type', 'letter.p1', 'letter.p2']
         sd = SDDataSets()
         result = {}
@@ -226,7 +240,11 @@ class CmpML(object):
                 x_train, y_train, x_test, y_true = sd.load(data_name)
                 file_name = "model/{}_{}".format(m_name,data_name)
                 m = pickle.load(open(file_name, 'rb'))
+
+                start_time = time.time()
                 y_pred = m.predict(x_test)
+                total_time = time.time() -start_time
+                print "{} {} {} size {}".format(m_name, data_name, total_time, len(y_pred))
 
                 acc = accuracy_score(y_true, y_pred)
                 fsc = f1_score(y_true, y_pred)
@@ -237,9 +255,9 @@ class CmpML(object):
                 lst.extend([acc, fsc, roc_auc, apr, rms])
                 m_lst.append(lst)
             result[m_name] = m_lst
-        self.report_by_metrics(result,['acc', 'fsc', 'roc', 'apr', 'rms'], ml_name)
-        print ''
-        self.report_by_datasets(result, datasets, ml_name)
+        # self.report_by_metrics(result,['acc', 'fsc', 'roc', 'apr', 'rms'], ml_name)
+        # print ''
+        # self.report_by_datasets(result, datasets, ml_name)
 
 
     def process_cmp_new(self):
@@ -299,6 +317,7 @@ class CmpML(object):
 if __name__ == '__main__':
     logging.info('start...')
     cmpMl = CmpML()
+    # cmpMl.process_n_estimation()
     cmpMl.process_save_model()
     # cmpMl.save_model_nb()
     # cmpMl.process_cmp_new()

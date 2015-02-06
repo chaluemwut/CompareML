@@ -322,6 +322,37 @@ class SDDataSets(object):
         x_test, y_test = x[5000:size], y[5000:size]
         return x_train, y_train, x_test, y_test
 
+    def loadAll(self, dataset_name):
+        if 'adult' == dataset_name:
+            adult = self.ADULT()
+            x, y = adult.load()
+            return x, y
+            # return self.split_data(x, y)
+        elif 'iris' == dataset_name:
+            from sklearn import datasets
+            iris = datasets.load_iris()
+            x_train, y_train = iris.data[0:100], iris.target[0:100]
+            x_test, y_test = iris.data[100:150], iris.target[100:150]
+            return x_train, y_train, x_test, y_test
+        elif 'cov_type' == dataset_name:
+            cov_obj = self.CovType()
+            x,y = cov_obj.load()
+            return x, y
+            # return self.split_data(x, y)
+        elif dataset_name in ['letter.p1', 'letter.p2']:
+            letter = self.LetterP(dataset_name)
+            x, y = letter.load()
+            return x, y
+            # return self.split_data(x, y)
+        elif 'letter' == dataset_name:
+            letter_obj = self.Letter()
+            return letter_obj.load()
+        elif 'fbcredibility' == dataset_name:
+            fb_load = self.FBCredibility()
+            x, y = fb_load.load()
+            size = len(y)
+            return x[0:600], y[0:600], x[600:size], y[600:size]
+
     def load(self, dataset_name):
         if 'adult' == dataset_name:
             adult = self.ADULT()
