@@ -47,7 +47,7 @@ class HiddenLayer(object):
             lin_output if activation is None
             else activation(lin_output)
         )
-        # parameters of the model
+        # parameters of the model_backup
         self.params = [self.W, self.b]
 
 
@@ -87,7 +87,7 @@ class MLP(object):
         )
 
         # negative log likelihood of the MLP is given by the negative
-        # log likelihood of the output of the model, computed in the
+        # log likelihood of the output of the model_backup, computed in the
         # logistic regression layer
         self.negative_log_likelihood = (
             self.logRegressionLayer.negative_log_likelihood
@@ -95,7 +95,7 @@ class MLP(object):
         # same holds for the function computing the number of errors
         self.errors = self.logRegressionLayer.errors
 
-        # the parameters of the model are the parameters of the two layer it is
+        # the parameters of the model_backup are the parameters of the two layer it is
         # made out of
         self.params = self.hiddenLayer.params + self.logRegressionLayer.params
         # end-snippet-3
@@ -166,7 +166,7 @@ def test_mlp(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
     ######################
     # BUILD ACTUAL MODEL #
     ######################
-    print '... building the model'
+    print '... building the model_backup'
     # allocate symbolic variables for the data
     index = T.lscalar()  # index to a [mini]batch
     x = T.matrix('x')  # the data is presented as rasterized images
@@ -186,7 +186,7 @@ def test_mlp(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
 
     # start-snippet-4
     # the cost we minimize during training is the negative log likelihood of
-    # the model plus the regularization terms (L1 and L2); cost is expressed
+    # the model_backup plus the regularization terms (L1 and L2); cost is expressed
     # here symbolically
     cost = (
         classifier.negative_log_likelihood(y)
@@ -205,7 +205,7 @@ def test_mlp(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
     ]
 
     # compiling a Theano function `train_model` that returns the cost, but
-    # in the same time updates the parameter of the model based on the rules
+    # in the same time updates the parameter of the model_backup based on the rules
     # defined in `updates`
     train_model = theano.function(
         inputs=[index],

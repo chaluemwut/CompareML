@@ -131,7 +131,7 @@ class DBN(object):
         # negative log likelihood of the logistic regression (output) layer
         self.finetune_cost = self.logLayer.negative_log_likelihood(self.y)
 
-        # compute the gradients with respect to the model parameters
+        # compute the gradients with respect to the model_backup parameters
         # symbolic variable that points to the number of errors made on the
         # minibatch given by self.x and self.y
         self.errors = self.logLayer.errors(self.y)
@@ -217,7 +217,7 @@ class DBN(object):
 
         index = T.lscalar('index')  # index to a [mini]batch
 
-        # compute the gradients with respect to the model parameters
+        # compute the gradients with respect to the model_backup parameters
         gparams = T.grad(self.finetune_cost, self.params)
 
         # compute list of fine-tuning updates
@@ -311,7 +311,7 @@ def test_DBN(finetune_lr=0.1, pretraining_epochs=100,
 
     # numpy random generator
     numpy_rng = numpy.random.RandomState(123)
-    print '... building the model'
+    print '... building the model_backup'
     # construct the Deep Belief Network
     dbn = DBN(numpy_rng=numpy_rng, n_ins=28 * 28,
               hidden_layers_sizes=[1000, 1000, 1000],
@@ -326,7 +326,7 @@ def test_DBN(finetune_lr=0.1, pretraining_epochs=100,
                                                 batch_size=batch_size,
                                                 k=k)
 
-    print '... pre-training the model'
+    print '... pre-training the model_backup'
     start_time = time.clock()
     ## Pre-train layer-wise
     for i in xrange(dbn.n_layers):
@@ -349,7 +349,7 @@ def test_DBN(finetune_lr=0.1, pretraining_epochs=100,
     # FINETUNING THE MODEL #
     ########################
 
-    # get the training, validation and testing function for the model
+    # get the training, validation and testing function for the model_backup
     print '... getting the finetuning functions'
     train_fn, validate_model, test_model = dbn.build_finetune_functions(
         datasets=datasets,
@@ -357,7 +357,7 @@ def test_DBN(finetune_lr=0.1, pretraining_epochs=100,
         learning_rate=finetune_lr
     )
 
-    print '... finetuning the model'
+    print '... finetuning the model_backup'
     # early-stopping parameters
     patience = 4 * n_train_batches  # look as this many examples regardless
     patience_increase = 2.    # wait this much longer when a new best is
@@ -416,7 +416,7 @@ def test_DBN(finetune_lr=0.1, pretraining_epochs=100,
                     test_losses = test_model()
                     test_score = numpy.mean(test_losses)
                     print(('     epoch %i, minibatch %i/%i, test error of '
-                           'best model %f %%') %
+                           'best model_backup %f %%') %
                           (epoch, minibatch_index + 1, n_train_batches,
                            test_score * 100.))
 

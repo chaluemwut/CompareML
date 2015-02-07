@@ -100,7 +100,7 @@ class MLKNN(BaseML):
 #     clf = DirectionalGridCRF(inference_method='gpbo', neighborhood=4) 
     
 #     def __init__(self, x_train, y_train):
-#         self.clf = ssvm.OneSlackSSVM(model=self.clf, C=1, n_jobs=-1, inference_cache=100, tol=.1,
+#         self.clf = ssvm.OneSlackSSVM(model_backup=self.clf, C=1, n_jobs=-1, inference_cache=100, tol=.1,
 #                         show_loss_every=10)
 #         self.clf.fit(x_train, y_train)
         

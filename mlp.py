@@ -104,7 +104,7 @@ class HiddenLayer(object):
             lin_output if activation is None
             else activation(lin_output)
         )
-        # parameters of the model
+        # parameters of the model_backup
         self.params = [self.W, self.b]
 
 
@@ -112,7 +112,7 @@ class HiddenLayer(object):
 class MLP(object):
     """Multi-Layer Perceptron Class
 
-    A multilayer perceptron is a feedforward artificial neural network model
+    A multilayer perceptron is a feedforward artificial neural network model_backup
     that has one layer or more of hidden units and nonlinear activations.
     Intermediate layers usually have as activation function tanh or the
     sigmoid function (defined here by a ``HiddenLayer`` class)  while the
@@ -178,7 +178,7 @@ class MLP(object):
         )
 
         # negative log likelihood of the MLP is given by the negative
-        # log likelihood of the output of the model, computed in the
+        # log likelihood of the output of the model_backup, computed in the
         # logistic regression layer
         self.negative_log_likelihood = (
             self.logRegressionLayer.negative_log_likelihood
@@ -186,7 +186,7 @@ class MLP(object):
         # same holds for the function computing the number of errors
         self.errors = self.logRegressionLayer.errors
 
-        # the parameters of the model are the parameters of the two layer it is
+        # the parameters of the model_backup are the parameters of the two layer it is
         # made out of
         self.params = self.hiddenLayer.params + self.logRegressionLayer.params
         # end-snippet-3
@@ -235,7 +235,7 @@ def test_mlp(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
     ######################
     # BUILD ACTUAL MODEL #
     ######################
-    print '... building the model'
+    print '... building the model_backup'
 
     # allocate symbolic variables for the data
     index = T.lscalar()  # index to a [mini]batch
@@ -256,7 +256,7 @@ def test_mlp(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
 
     # start-snippet-4
     # the cost we minimize during training is the negative log likelihood of
-    # the model plus the regularization terms (L1 and L2); cost is expressed
+    # the model_backup plus the regularization terms (L1 and L2); cost is expressed
     # here symbolically
     cost = (
         classifier.negative_log_likelihood(y)
@@ -266,7 +266,7 @@ def test_mlp(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
     # end-snippet-4
 
     # compiling a Theano function that computes the mistakes that are made
-    # by the model on a minibatch
+    # by the model_backup on a minibatch
     test_model = theano.function(
         inputs=[index],
         outputs=classifier.errors(y),
@@ -290,7 +290,7 @@ def test_mlp(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
     # the resulting gradients will be stored in a list gparams
     gparams = [T.grad(cost, param) for param in classifier.params]
 
-    # specify how to update the parameters of the model as a list of
+    # specify how to update the parameters of the model_backup as a list of
     # (variable, update expression) pairs
 
     # given two list the zip A = [a1, a2, a3, a4] and B = [b1, b2, b3, b4] of
@@ -303,7 +303,7 @@ def test_mlp(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
     ]
 
     # compiling a Theano function `train_model` that returns the cost, but
-    # in the same time updates the parameter of the model based on the rules
+    # in the same time updates the parameter of the model_backup based on the rules
     # defined in `updates`
     train_model = theano.function(
         inputs=[index],
@@ -384,7 +384,7 @@ def test_mlp(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
                     test_score = numpy.mean(test_losses)
 
                     print(('     epoch %i, minibatch %i/%i, test error of '
-                           'best model %f %%') %
+                           'best model_backup %f %%') %
                           (epoch, minibatch_index + 1, n_train_batches,
                            test_score * 100.))
 

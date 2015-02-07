@@ -84,12 +84,12 @@ class GroupedLogisticRegression(object):
             self.p_y_given_x.append( p_y_given_x ) 
             self.y_pred.append( y_pred ) 
 
-        # parameters of the model 
+        # parameters of the model_backup
         self.params = [self.W, self.b] 
 
     def negative_log_likelihood(self, ys): 
         """Return the mean of the negative log-likelihood of the 
-        prediction of this model under a given target distribution. 
+        prediction of this model_backup under a given target distribution.
 
         .. math:: 
             \frac{1}{|\mathcal{D}|} \mathcal{L} (\theta=\{W,b\}, \mathcal{D}) = 
@@ -215,7 +215,7 @@ def sgd_optimization_mnist(learning_rate=0.13, n_epochs=1000,
                            batch_size=600):
     """
     Demonstrate stochastic gradient descent optimization of a log-linear
-    model
+    model_backup
 
     This is demonstrated on MNIST.
 
@@ -245,7 +245,7 @@ def sgd_optimization_mnist(learning_rate=0.13, n_epochs=1000,
     ######################
     # BUILD ACTUAL MODEL #
     ######################
-    print '... building the model'
+    print '... building the model_backup'
 
     # allocate symbolic variables for the data
     index = T.lscalar()  # index to a [mini]batch
@@ -260,11 +260,11 @@ def sgd_optimization_mnist(learning_rate=0.13, n_epochs=1000,
     classifier = GroupedLogisticRegression(input=x, n_in=28 * 28, n_outs=[10])
 
     # the cost we minimize during training is the negative log likelihood of
-    # the model in symbolic format
+    # the model_backup in symbolic format
     cost = classifier.negative_log_likelihood(y)
 
     # compiling a Theano function that computes the mistakes that are made by
-    # the model on a minibatch
+    # the model_backup on a minibatch
     test_model = theano.function(
         inputs=[index],
         outputs=classifier.errors(y),
@@ -288,13 +288,13 @@ def sgd_optimization_mnist(learning_rate=0.13, n_epochs=1000,
     g_b = T.grad(cost=cost, wrt=classifier.b)
 
     # start-snippet-3
-    # specify how to update the parameters of the model as a list of
+    # specify how to update the parameters of the model_backup as a list of
     # (variable, update expression) pairs.
     updates = [(classifier.W, classifier.W - learning_rate * g_W),
                (classifier.b, classifier.b - learning_rate * g_b)]
 
     # compiling a Theano function `train_model` that returns the cost, but in
-    # the same time updates the parameter of the model based on the rules
+    # the same time updates the parameter of the model_backup based on the rules
     # defined in `updates`
     train_model = theano.function(
         inputs=[index],
@@ -310,7 +310,7 @@ def sgd_optimization_mnist(learning_rate=0.13, n_epochs=1000,
     ###############
     # TRAIN MODEL #
     ###############
-    print '... training the model'
+    print '... training the model_backup'
     # early-stopping parameters
     patience = 5000  # look as this many examples regardless
     patience_increase = 2  # wait this much longer when a new best is
@@ -370,7 +370,7 @@ def sgd_optimization_mnist(learning_rate=0.13, n_epochs=1000,
                     print(
                         (
                             '     epoch %i, minibatch %i/%i, test error of'
-                            ' best model %f %%'
+                            ' best model_backup %f %%'
                         ) %
                         (
                             epoch,

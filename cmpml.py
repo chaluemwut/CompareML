@@ -95,7 +95,7 @@ class CmpML(object):
 
     def report_by_metrics(self, data_map, header, ml):
         print "----------------------------------------------------  Report by metrics  --------------------------------------------"
-        str = "{:<14} | ".format("model")
+        str = "{:<14} | ".format("model_backup")
         for h in header:
             str+="{:<14} | ".format(h)
         str+="mean"
@@ -123,7 +123,7 @@ class CmpML(object):
     
     def report_by_datasets(self, data_map, header, ml):
         print "--------------------------------------- Report by name ---------------------------------------------"
-        str = "{:<14} | ".format("model")
+        str = "{:<14} | ".format("model_backup")
         for h in header:
             str+="{:<14} | ".format(h)
         str+="mean"
@@ -145,7 +145,7 @@ class CmpML(object):
     
     def report_result(self, data_map, header, ml):
         print "------------------------------------------------------------------"
-        str = "{:<14} | ".format("model")
+        str = "{:<14} | ".format("model_backup")
         for h in header:
             str += "{:<14} | ".format(h)
         str += "mean"
@@ -168,7 +168,7 @@ class CmpML(object):
             m = GaussianNB()
             x_train, y_train, x_test, y_test = sd.load(data_name)
             model, predict_score = self.select_best_model_score(m, x_train, y_train)
-            file_name = "model/{}_{}".format('NaiveBayes', data_name)
+            file_name = "model_backup/{}_{}".format('NaiveBayes', data_name)
             print '{}'.format(predict_score)
             pickle.dump(model, open(file_name, 'wb'))
 
@@ -179,7 +179,7 @@ class CmpML(object):
         for data_name in self.datasets:
             lst_model = []
             lst_score = []
-            # file_name = "model/{}_{}".format(m, data_name)
+            # file_name = "model_backup/{}_{}".format(m, data_name)
             # print file_name
             for i in range(1, 101):
                 m = GradientBoostingClassifier(n_estimators=i)
@@ -190,7 +190,7 @@ class CmpML(object):
                 lst_score.append(predict_score)
             # print '{} {}'.format(b_score, b_model.n_estimators)
             # print lst_score
-            file_name = "model/{}_{}".format('NaiveBayes', data_name)
+            file_name = "model_backup/{}_{}".format('NaiveBayes', data_name)
             max_index = lst_score.index(max(lst_score))
             b_score = lst_score[max_index]
             b_model = lst_model[max_index]
@@ -220,7 +220,7 @@ class CmpML(object):
         self.init_setup()
         for m_name in self.ml_name:
             for d_name in self.datasets:
-                file_name = "model/{}_{}".format(m_name, d_name)
+                file_name = "model_backup/{}_{}".format(m_name, d_name)
                 if m_name != 'NaiveBayes':
                     model = pickle.load(open(file_name, 'rb'))
                     print "{} {} {}".format(m_name, d_name, model.n_estimators)
@@ -238,7 +238,7 @@ class CmpML(object):
             for data_name in datasets:
                 lst = []
                 x_train, y_train, x_test, y_true = sd.load(data_name)
-                file_name = "model/{}_{}".format(m_name,data_name)
+                file_name = "model_backup/{}_{}".format(m_name,data_name)
                 m = pickle.load(open(file_name, 'rb'))
 
                 start_time = time.time()

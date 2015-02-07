@@ -38,7 +38,7 @@ class RBM(object):
         theano_rng=None
     ):
         """
-        RBM constructor. Defines the parameters of the model along with
+        RBM constructor. Defines the parameters of the model_backup along with
         basic operations for inferring hidden from visible (and vice-versa),
         as well as for performing CD updates.
 
