@@ -10,7 +10,7 @@ import numpy as np
 import pickle, copy, time
 from sklearn.metrics import *
 
-ml = ['bagging', 'boosted', 'randomforest', 'nb', 'knn', 'decsiontree']
+ml = ['bagging', 'boosted', 'randomforest', 'nb', 'knn', 'decsiontree', 'svm']
 line_header = '-'*99
 line_header_metric = '-'*108
 
@@ -26,7 +26,7 @@ class Compare(object):
         self.sd = SDDataSets()
 
     def generate_model(self):
-        base_model = 5
+        base_model = 201
         bagging_lst = []
         for i in range(1, base_model):
             bagging_lst.append(BaggingClassifier(DecisionTreeClassifier(), n_estimators=i))
@@ -53,7 +53,8 @@ class Compare(object):
                 ml[2]:random_lst,
                 ml[3]:[GaussianNB()],
                 ml[4]:knn_lst,
-                ml[5]:[DecisionTreeClassifier()]
+                ml[5]:[DecisionTreeClassifier()],
+                ml[6]:svm_lst
         }
 
     def find_avg_metric(self, y_true, y_pred):
@@ -121,6 +122,7 @@ class Compare(object):
             k_metric = []
             for m in model_lst:
                 # print 'n estimator ',m.n_estimators
+                print m
                 kf = KFold(len(y), n_folds=5)
                 j_metric_lst = []
                 j_model_lst = []
@@ -234,7 +236,7 @@ class Compare(object):
                     # print key, value
     def report_time(self, result_time):
         pickle.dump(result_time, open('result/result_time', 'wb'))
-        print '***************************** Report by datasets ****************\n'
+        print '***************************** Report by time ****************\n'
         header = '{:<12}'.format('datasets')
         for data_name in self.datasets:
             header=header+' | {:<16}'.format(data_name)
@@ -286,10 +288,10 @@ class Compare(object):
 
 if __name__ == '__main__':
     obj = Compare()
-    result_time = pickle.load(open('result/result_time', 'rb'))
-    obj.report_time(result_time)
+    # result_time = pickle.load(open('result/result_time', 'rb'))
+    # obj.report_time(result_time)
     # obj.report_by_metric(result_report)
     # obj.report_by_datasets(result_report)
-    # obj.create_model()
+    obj.create_model()
     # obj.load_metric()
     # obj.test_model()
