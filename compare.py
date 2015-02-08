@@ -25,8 +25,8 @@ class Compare(object):
         self.test_size = [.75, .50, .25]
         self.sd = SDDataSets()
 
-    def generate_model(self):
-        base_model = 11
+    def generate_model_2(self, data_len):
+        base_model = 201
         bagging_lst = []
         for i in range(1, base_model):
             bagging_lst.append(BaggingClassifier(DecisionTreeClassifier(), n_estimators=i))
@@ -37,6 +37,39 @@ class Compare(object):
 
         random_lst = []
         for i in range(1, base_model):
+            random_lst.append(RandomForestClassifier(n_estimators=i))
+        knn_lst = []
+        for i in range(1, base_model):
+            knn_lst.append(KNeighborsClassifier(n_neighbors=i))
+
+        svm_lst = []
+        svm_lst.append(SVC(kernel='linear'))
+        svm_lst.append(SVC(kernel='poly', degree=2))
+        svm_lst.append(SVC(kernel='poly', degree=3))
+        svm_lst.append(SVC(kernel='sigmoid'))
+
+        return {ml[0]:bagging_lst,
+                ml[1]:boosted_lst,
+                ml[2]:random_lst,
+                ml[3]:[GaussianNB()],
+                ml[4]:knn_lst,
+                ml[5]:[DecisionTreeClassifier()]
+                # ml[6]:svm_lst
+        }
+
+    def generate_model(self, data_len):
+        base_model = 201
+        base_model_lst = [2,4,8,16,32,64,128,256,1024,2048,4096,8192]
+        bagging_lst = []
+        for i in base_model_lst:
+            bagging_lst.append(BaggingClassifier(DecisionTreeClassifier(), n_estimators=i))
+
+        boosted_lst = []
+        for i in base_model_lst:
+            boosted_lst.append(GradientBoostingClassifier(n_estimators=i))
+
+        random_lst = []
+        for i in base_model_lst:
             random_lst.append(RandomForestClassifier(n_estimators=i))
         knn_lst = []
         for i in range(1, base_model):
@@ -69,7 +102,8 @@ class Compare(object):
         return [acc, fsc, roc_auc, apr, rms]
 
     def find_best_model(self, x, y, data_name, rate):
-        for model_name, model_lst in self.generate_model().iteritems():
+        data_len = len(x)
+        for model_name, model_lst in self.generate_model(data_len).iteritems():
             k_model = []
             k_metric = []
             for m in model_lst:
@@ -116,13 +150,14 @@ class Compare(object):
 
     def array_k_fold(self, x, y, data_name, rate):
         result = {}
-        for model_name, model_lst in self.generate_model().iteritems():
+        data_len = len(x)
+        for model_name, model_lst in self.generate_model(data_len).iteritems():
             print 'model name ',model_name
             k_model = []
             k_metric = []
             for m in model_lst:
                 # print 'n estimator ',m.n_estimators
-                print m
+                print 'rate : {} data set : {} ml : {}'.format(rate, data_name, m)
                 kf = KFold(len(y), n_folds=5)
                 j_metric_lst = []
                 j_model_lst = []
@@ -290,5 +325,5 @@ if __name__ == '__main__':
     start = time.time()
     obj = Compare()
     obj.create_model()
-    total = (time.time()-start)/60.0
+    total = (time.time()-start)/(60.0*2)
     print 'Total time execute {} second'.format(total)
