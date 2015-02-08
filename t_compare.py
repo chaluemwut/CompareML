@@ -7,12 +7,13 @@ from sklearn.naive_bayes import GaussianNB
 from load_data import SDDataSets
 from sklearn.svm import SVC
 import numpy as np
-import pickle, copy, time
+import pickle, copy, time, threading
 from sklearn.metrics import *
 
 ml = ['bagging', 'boosted', 'randomforest', 'nb', 'knn', 'decsiontree']
 line_header = '-'*99
 line_header_metric = '-'*108
+main_path = 'tresult'
 
 class Compare(object):
 
@@ -95,22 +96,22 @@ class Compare(object):
             max_metric = max(k_metric)
             max_metric_index = k_metric.index(max_metric)
             model_of_max_metric = k_model[max_metric_index]
-            path_model_name = 'result/{}_{}_{}'.format(model_name, data_name, rate)
-            path_metric = 'result/data/{}_{}_{}_data'.format(model_name, data_name, rate)
+            path_model_name = main_path+'/{}_{}_{}'.format(model_name, data_name, rate)
+            path_metric = main_path+'/data/{}_{}_{}_data'.format(model_name, data_name, rate)
             pickle.dump(model_of_max_metric, open(path_model_name, 'wb'))
             pickle.dump(k_metric, open(path_metric, 'wb'))
 
     def test_model(self):
         for rate in self.test_size:
             for data_name in self.datasets:
-                path = 'result/bagging_{}_{}'.format(data_name, rate)
+                path = main_path+'/bagging_{}_{}'.format(data_name, rate)
                 m = pickle.load(open(path, 'rb'))
                 print path,': ',m.n_estimators
 
     def load_metric(self):
         for rate in self.test_size:
             for data_name in self.datasets:
-                path = 'result/data/bagging_{}_{}_data'.format(data_name, rate)
+                path = main_path+'/data/bagging_{}_{}_data'.format(data_name, rate)
                 lst = pickle.load(open(path, 'rb'))
                 print lst
 
@@ -144,25 +145,25 @@ class Compare(object):
             max_metric = max(k_metric)
             max_metric_index = k_metric.index(max_metric)
             model_of_max_metric = k_model[max_metric_index]
-            path_model_name = 'result/model/{}_{}_{}'.format(model_name, data_name, rate)
-            path_metric = 'result/metric/{}_{}_{}_data'.format(model_name, data_name, rate)
+            path_model_name = main_path+'/model/{}_{}_{}'.format(model_name, data_name, rate)
+            path_metric = main_path+'/metric/{}_{}_{}_data'.format(model_name, data_name, rate)
             pickle.dump(model_of_max_metric, open(path_model_name, 'wb'))
             pickle.dump(k_metric, open(path_metric, 'wb'))
             result[model_name] = model_of_max_metric
         return result
 
     def log_data(self, data_name, rate, x_train, x_test, y_train, y_test):
-        path_train_x = 'result/data/train/x_{}_{}'.format(data_name, rate)
-        path_train_y = 'result/data/train/y_{}_{}'.format(data_name, rate)
-        path_test_x = 'result/data/test/x_{}_{}'.format(data_name, rate)
-        path_test_y = 'result/data/test/y_{}_{}'.format(data_name, rate)
+        path_train_x = main_path+'/data/train/x_{}_{}'.format(data_name, rate)
+        path_train_y = main_path+'/data/train/y_{}_{}'.format(data_name, rate)
+        path_test_x = main_path+'/data/test/x_{}_{}'.format(data_name, rate)
+        path_test_y = main_path+'/data/test/y_{}_{}'.format(data_name, rate)
         pickle.dump(x_train, open(path_train_x, 'wb'))
         pickle.dump(y_train, open(path_train_y, 'wb'))
         pickle.dump(x_test, open(path_test_x, 'wb'))
         pickle.dump(y_test, open(path_test_y, 'wb'))
 
     def report(self, result):
-        pickle.dump(result, open('result/result_report', 'wb'))
+        pickle.dump(result, open(main_path+'/result_report', 'wb'))
         self.report_by_metric(result)
         self.report_by_datasets(result)
 
@@ -235,7 +236,7 @@ class Compare(object):
             print '\n'
                     # print key, value
     def report_time(self, result_time):
-        pickle.dump(result_time, open('result/result_time', 'wb'))
+        pickle.dump(result_time, open(main_path+'/result_time', 'wb'))
         print '***************************** Report by time ****************\n'
         header = '{:<12}'.format('datasets')
         for data_name in self.datasets:
@@ -261,28 +262,37 @@ class Compare(object):
             print '\n'
 
 
+    def execute_per_ml(self, data_name, rate, result_report, result_time):
+        x, y = self.sd.loadAll(data_name)
+        x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=rate, random_state=0)
+        self.log_data(data_name, rate, x_train, x_test, y_train, y_test)
+        result = self.array_k_fold(x_train, y_train, data_name, rate)
+        for model_name, model in result.iteritems():
+            key = (rate, data_name, model_name,)
+            start = time.time()
+            y_pred = model.predict(x_test)
+            total_time = time.time() - start
+            lst_metric = self.find_metric(y_test, y_pred)
+            result_report[key] = lst_metric  # 5 metric
+            result_time[key] = (total_time, len(y_pred),)
+            # print model_name, lst_metric
+
     def create_model(self):
         result_report = {}
         result_time = {}
+        thread_lst = []
         for rate in self.test_size:
             key = ()
             print 'traing data size {} %'.format((1-rate)*100)
             for data_name in self.datasets:
                 print 'datasets name ',data_name
-                x, y = self.sd.loadAll(data_name)
-                x_train, x_test, y_train, y_test = train_test_split(x, y , test_size=rate, random_state=0)
-                self.log_data(data_name, rate, x_train, x_test, y_train, y_test)
-                result = self.array_k_fold(x_train, y_train, data_name, rate)
-                for model_name, model in result.iteritems():
-                    key = (rate, data_name, model_name,)
-                    start = time.time()
-                    y_pred = model.predict(x_test)
-                    total_time = time.time()-start
-                    lst_metric = self.find_metric(y_test, y_pred)
-                    result_report[key] = lst_metric #5 metric
-                    result_time[key] = (total_time, len(y_pred),)
-                    # print model_name, lst_metric
+                t = threading.Thread(target=self.execute_per_ml, args=(data_name, rate, result_report, result_time,))
+                thread_lst.append(t)
 
+        for t in thread_lst:
+            t.start()
+        for t in thread_lst:
+            t.join()
         self.report(result_report)
         self.report_time(result_time)
 
