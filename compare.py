@@ -295,6 +295,35 @@ class Compare(object):
                 print out_data
             print '\n'
 
+    def write_data_file(self, f_train, x_data_train, y_data_train):
+        data = str(y_data_train) + ' '
+        counter = 1
+        for i in x_data_train:
+            data = data + str(counter) + ':' + str(i) + ' '
+            counter = counter + 1
+        f_train.write(data[:-1]+'\n')
+
+    def create_dataset(self):
+        for rate in self.test_size:
+            for data_set_name in self.datasets:
+                path_train = 'libsvm/train_{}_{}'.format(data_set_name,rate)
+                path_test = 'libsvm/test_{}_{}'.format(data_set_name, rate)
+                f_train = open(path_train, 'w')
+                f_test = open(path_test, 'w')
+                x, y = self.sd.loadAll(data_set_name)
+                x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=rate, random_state=0)
+                for x_data_train, y_data_train in zip(x_train, y_train):
+                    self.write_data_file(f_train, x_data_train, y_data_train)
+
+                for x_data_test, y_data_test in zip(x_test, y_test):
+                    self.write_data_file(f_test, x_data_test, y_data_test)
+
+                f_train.close()
+                f_test.close()
+
+    def libsvm(self):
+        pass
+
 
     def create_model(self):
         result_report = {}
@@ -324,6 +353,7 @@ class Compare(object):
 if __name__ == '__main__':
     start = time.time()
     obj = Compare()
-    obj.create_model()
-    total = (time.time()-start)/(60.0*2)
+    obj.create_dataset()
+    # obj.create_model()
+    total = (time.time()-start)/(60.0)
     print 'Total time execute {} second'.format(total)
