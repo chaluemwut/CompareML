@@ -1,6 +1,6 @@
 import os
 import numpy as np
-libsvm_path = '/home/off/libsvm-3.20'
+libsvm_path = '/Users/ECP/libsvm-3.20'
 data_file = 'datafile/result/model/svm_kernel{}_degree{}_rate{}_dataset{}_k{}'
 
 class LibSVMWrapper(object):
@@ -65,6 +65,9 @@ class LibSVMWrapper(object):
                                                                     self.path_result)
         os.system(create_predict)
         return self.__read_result()
+
+    def __str__(self, *args, **kwargs):
+        return 'svm kernel : {} degree : {}'.format(self.kernel, self.degree)
 
 if __name__ == '__main__':
     import pickle

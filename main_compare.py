@@ -10,7 +10,7 @@ import numpy as np
 ml = ['bagging', 'boosted', 'randomforest', 'nb', 'knn', 'decsiontree', 'svm']
 metrics = ['acc', 'fsc', 'roc', 'apr', 'rms']
 datasets = ['adult', 'cov_type', 'letter.p1', 'letter.p2']
-libsvm_path = '/home/off/libsvm-3.20'
+libsvm_path = '/Users/admin/libsvm-3.20'
 base_file_path = 'datafile'
 base_file_train_path = base_file_path+'/train'
 base_file_test_path = base_file_path+'/test'
@@ -132,10 +132,8 @@ class MainCompare(object):
         return [acc, fsc, roc_auc, apr, rms]
 
     def generate_model(self, rate, data_set_name):
-        # base_model = 201
-        # base_model_lst = [2,4,8,16,32,64,128,256,1024,2048,4096,8192]
-        base_model = 6
-        base_model_lst = [2,4,8,32]
+        base_model = 101
+        base_model_lst = [2,4,8,32,64,128,256,1024]
         bagging_lst = []
         for i in base_model_lst:
             bagging_lst.append(BaggingClassifier(DecisionTreeClassifier(), n_estimators=i))
@@ -148,7 +146,7 @@ class MainCompare(object):
         for i in base_model_lst:
             random_lst.append(RandomForestClassifier(n_estimators=i))
         knn_lst = []
-        for i in range(1, base_model):
+        for i in range(2, base_model):
             knn_lst.append(KNeighborsClassifier(n_neighbors=i))
 
         svm_lst = [LibSVMWrapper(kernel=0, degree=0, rate=rate, data_set_name=data_set_name),
@@ -162,8 +160,8 @@ class MainCompare(object):
                 ml[2]:random_lst,
                 ml[3]:[GaussianNB()],
                 ml[4]:knn_lst,
-                ml[5]:[DecisionTreeClassifier()],
-                ml[6]:svm_lst
+                ml[5]:[DecisionTreeClassifier()]
+                # ml[6]:svm_lst
         }
 
     def find_max_index(self, metric_lst, model_lst):
@@ -199,25 +197,26 @@ class MainCompare(object):
                     x_test = pickle.load(open(x_test_path, 'rb'))
                     y_test = pickle.load(open(y_test_path, 'rb'))
                     mc = copy.deepcopy(m)
-                    if model_name == ml[6]:
-                        mc.fit(x_train, y_train, k)
-                    else:
-                        mc.fit(x_train, y_train)
-                        num_n_estimator = ''
-                        try:
-                            num_n_estimator = mc.n_estimators
-                        except AttributeError:
-                            pass
-                        try:
-                            num_n_estimator = mc.n_neighbors
-                        except AttributeError:
-                            pass
-                        path_save_model = 'datafile/result/model/{}_rate{}_dataset{}_k{}_n_estimator{}'.format(model_name,
-                                                                                                 rate,
-                                                                                                 data_set_name,
-                                                                                                 k,
-                                                                                                 num_n_estimator)
-                        pickle.dump(mc, open(path_save_model, 'wb'))
+                    mc.fit(x_train, y_train)
+                    # if model_name == ml[6]:
+                    #     mc.fit(x_train, y_train, k)
+                    # else:
+                    #     mc.fit(x_train, y_train)
+                    #     num_n_estimator = ''
+                        # try:
+                        #     num_n_estimator = mc.n_estimators
+                        # except AttributeError:
+                        #     pass
+                        # try:
+                        #     num_n_estimator = mc.n_neighbors
+                        # except AttributeError:
+                        #     pass
+                        # path_save_model = 'datafile/result/model/{}_rate{}_dataset{}_k{}_n_estimator{}'.format(model_name,
+                        #                                                                          rate,
+                        #                                                                          data_set_name,
+                        #                                                                          k,
+                        #                                                                          num_n_estimator)
+                        # pickle.dump(mc, open(path_save_model, 'wb'))
                     y_pred = mc.predict(x_test)
                     avg_metric = self.find_avg_metric(y_test, y_pred)
                     ki_metric.append(avg_metric)
@@ -233,27 +232,28 @@ class MainCompare(object):
     def compare(self):
         result_report = {}
         result_time = {}
-        max_model = []
+        max_model = {}
         for rate in test_size:
             for data_set_name in datasets:
+                key = (rate, data_set_name,)
                 result = self.array_k_fold(rate, data_set_name)
+                max_data_set = []
+                print '******************* data set ',data_set_name
                 for model_name, model in result.iteritems():
-                    x_test_path = 'datafile/test/obj/test_x_{}_{}'.format(data_set_name, rate)
-                    y_test_path = 'datafile/test/obj/test_y_{}_{}'.format(data_set_name, rate)
-                    x_test = pickle.load(open(x_test_path, 'rb'))
-                    y_test = pickle.load(open(y_test_path, 'rb'))
-                    key = (rate, data_set_name, model_name,)
-                    start = time.time()
-                    y_pred = model.predict(x_test)
-                    max_model.append(model)
-                    total_time = time.time()-start
-                    lst_metric = self.find_metric(y_test, y_pred)
-                    result_report[key] = lst_metric #5 metric
-                    result_time[key] = (total_time, len(y_pred),)
+                    max_data_set.append(model)
+                    print data_set_name, ' max model ', model
+                max_model[key] = max_data_set
+                print '*'*10
 
         pickle.dump(max_model, open('datafile/result/max_model','wb'))
-        self.report(result_report)
-        self.report_time(result_time)
+        print '*'*10+' report max model'
+        for rate in test_size:
+            for data_set_name in datasets:
+                key = (rate, data_set_name,)
+                max_model_data = max_model[key]
+                print 'key ',key,' model ',max_model_data
+        # self.report(result_report)
+        # self.report_time(result_time)
 
 
 if __name__ == '__main__':
